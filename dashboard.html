@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Portal Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #111827;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: white;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-left h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .topbar-left p {
+      margin: 6px 0 0;
+      color: #dbeafe;
+      font-size: 14px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .logout-btn {
+      border: none;
+      background: white;
+      color: #1d4ed8;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background: #e5edff;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .message {
+      display: none;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .card {
+      grid-column: span 12;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      padding: 22px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 21px;
+      color: #111827;
+    }
+
+    .card p.card-subtitle {
+      margin: 0 0 18px;
+      color: #6b7280;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stat-box {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .stat-box .label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .stat-box .value {
+      font-size: 28px;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .profile-item {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .profile-item .label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .profile-item .value {
+      font-size: 15px;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .action-btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      background: #2563eb;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .action-btn.secondary {
+      background: #e5edff;
+      color: #1d4ed8;
+    }
+
+    .action-btn:hover {
+      opacity: 0.95;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .list-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
+      background: #fafafa;
+    }
+
+    .list-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e5edff;
+      color: #1d4ed8;
+    }
+
+    .pill.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .pill.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .pill.danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .empty-state {
+      color: #6b7280;
+      font-size: 14px;
+      padding: 10px 0;
+    }
+
+    .two-col-left {
+      grid-column: span 7;
+    }
+
+    .two-col-right {
+      grid-column: span 5;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loading-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #f3f6fb;
+      color: #374151;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      .stat-row,
+      .profile-grid,
+      .action-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .two-col-left,
+      .two-col-right {
+        grid-column: span 12;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .stat-row,
+      .profile-grid,
+      .action-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 16px;
+      }
+
+      .topbar {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingScreen" class="loading-screen">Loading dashboard...</div>
+
+  <div id="app" class="hidden">
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1>Employee Portal</h1>
+        <p id="welcomeText">Welcome back.</p>
+      </div>
+
+      <div class="topbar-right">
+        <div id="roleBadge" class="badge">Role</div>
+        <button id="logoutBtn" class="logout-btn">Log Out</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="messageBox" class="message"></div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Account Overview</h2>
+          <p class="card-subtitle">This section shows your profile details and account access information.</p>
+
+          <div class="profile-grid">
+            <div class="profile-item">
+              <div class="label">Username</div>
+              <div id="profileUsername" class="value">—</div>
+            </div>
+
+            <div class="profile-item">
+              <div class="label">Email</div>
+              <div id="profileEmail" class="value">—</div>
+            </div>
+
+            <div class="profile-item">
+              <div class="label">Employee ID</div>
+              <div id="profileEmployeeId" class="value">—</div>
+            </div>
+
+            <div class="profile-item">
+              <div class="label">Department</div>
+              <div id="profileDepartment" class="value">—</div>
+            </div>
+
+            <div class="profile-item">
+              <div class="label">Role</div>
+              <div id="profileRole" class="value">—</div>
+            </div>
+
+            <div class="profile-item">
+              <div class="label">Account Status</div>
+              <div id="profileStatus" class="value">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Quick Stats</h2>
+          <p class="card-subtitle">These numbers update based on your role and current records in the system.</p>
+
+          <div class="stat-row">
+            <div class="stat-box">
+              <div class="label">My Write-Ups</div>
+              <div id="myWriteupsCount" class="value">0</div>
+            </div>
+
+            <div class="stat-box">
+              <div class="label">My Appeals</div>
+              <div id="myAppealsCount" class="value">0</div>
+            </div>
+
+            <div class="stat-box">
+              <div class="label">Pending Appeals</div>
+              <div id="pendingAppealsCount" class="value">0</div>
+            </div>
+
+            <div class="stat-box">
+              <div class="label">Pending Signups</div>
+              <div id="pendingSignupsCount" class="value">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Quick Actions</h2>
+          <p class="card-subtitle">Available actions change depending on your permissions.</p>
+
+          <div class="action-grid">
+            <button id="viewMyWriteupsBtn" class="action-btn secondary">View My Write-Ups</button>
+            <button id="submitAppealBtn" class="action-btn secondary">Submit Appeal</button>
+            <button id="refreshBtn" class="action-btn secondary">Refresh Dashboard</button>
+
+            <button id="issueWriteupBtn" class="action-btn hidden">Issue Write-Up</button>
+            <button id="reviewAppealsBtn" class="action-btn hidden">Review Appeals</button>
+            <button id="manageSignupsBtn" class="action-btn hidden">Manage Signups</button>
+          </div>
+        </div>
+
+        <div class="card two-col-left">
+          <h2>Recent Write-Ups</h2>
+          <p class="card-subtitle">Employees see their own records here. Managers and higher can later view broader activity.</p>
+
+          <div id="writeupsList" class="list"></div>
+          <div id="writeupsEmpty" class="empty-state">No write-ups were found.</div>
+        </div>
+
+        <div class="card two-col-right">
+          <h2>Pending Signup Requests</h2>
+          <p class="card-subtitle">Managers can review requests for their department from this section.</p>
+
+          <div id="signupsList" class="list"></div>
+          <div id="signupsEmpty" class="empty-state">No pending signup requests were found.</div>
+        </div>
+
+        <div class="card">
+          <h2>Recent Appeals</h2>
+          <p class="card-subtitle">This section shows your appeal activity now, and manager review items later.</p>
+
+          <div id="appealsList" class="list"></div>
+          <div id="appealsEmpty" class="empty-state">No appeals were found.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      getDocs,
+      query,
+      where,
+      orderBy,
+      limit
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDE0nhogdC9LHPEhSlUF1AqnXmwPU64cXg",
+      authDomain: "company-discipline-portal.firebaseapp.com",
+      projectId: "company-discipline-portal",
+      storageBucket: "company-discipline-portal.firebasestorage.app",
+      messagingSenderId: "991390225414",
+      appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const appEl = document.getElementById("app");
+    const messageBox = document.getElementById("messageBox");
+
+    const welcomeText = document.getElementById("welcomeText");
+    const roleBadge = document.getElementById("roleBadge");
+
+    const profileUsername = document.getElementById("profileUsername");
+    const profileEmail = document.getElementById("profileEmail");
+    const profileEmployeeId = document.getElementById("profileEmployeeId");
+    const profileDepartment = document.getElementById("profileDepartment");
+    const profileRole = document.getElementById("profileRole");
+    const profileStatus = document.getElementById("profileStatus");
+
+    const myWriteupsCount = document.getElementById("myWriteupsCount");
+    const myAppealsCount = document.getElementById("myAppealsCount");
+    const pendingAppealsCount = document.getElementById("pendingAppealsCount");
+    const pendingSignupsCount = document.getElementById("pendingSignupsCount");
+
+    const writeupsList = document.getElementById("writeupsList");
+    const writeupsEmpty = document.getElementById("writeupsEmpty");
+
+    const appealsList = document.getElementById("appealsList");
+    const appealsEmpty = document.getElementById("appealsEmpty");
+
+    const signupsList = document.getElementById("signupsList");
+    const signupsEmpty = document.getElementById("signupsEmpty");
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+
+    const issueWriteupBtn = document.getElementById("issueWriteupBtn");
+    const reviewAppealsBtn = document.getElementById("reviewAppealsBtn");
+    const manageSignupsBtn = document.getElementById("manageSignupsBtn");
+
+    const viewMyWriteupsBtn = document.getElementById("viewMyWriteupsBtn");
+    const submitAppealBtn = document.getElementById("submitAppealBtn");
+
+    let currentUserData = null;
+
+    function showMessage(text, type) {
+      messageBox.textContent = text;
+      messageBox.className = `message ${type}`;
+    }
+
+    function clearMessage() {
+      messageBox.textContent = "";
+      messageBox.className = "message";
+    }
+
+    function formatValue(value) {
+      return value || "—";
+    }
+
+    function normalizeRole(role) {
+      return (role || "").toLowerCase();
+    }
+
+    function hasManagerAccess(userData) {
+      const role = normalizeRole(userData.role);
+      return role === "manager" || role === "admin" || role === "owner" || role === "administrator";
+    }
+
+    function canIssueWriteups(userData) {
+      return userData.permissions?.canIssueWriteups === true || hasManagerAccess(userData);
+    }
+
+    function canReviewAppeals(userData) {
+      return userData.permissions?.canReviewAppeals === true || hasManagerAccess(userData);
+    }
+
+    function canManageSignups(userData) {
+      return hasManagerAccess(userData);
+    }
+
+    function getPillClass(status) {
+      const value = (status || "").toLowerCase();
+
+      if (value === "approved" || value === "completed" || value === "resolved" || value === "active") {
+        return "pill success";
+      }
+
+      if (value === "denied" || value === "overturned" || value === "deleted") {
+        return "pill danger";
+      }
+
+      if (value === "pending" || value === "under appeal") {
+        return "pill warning";
+      }
+
+      return "pill";
+    }
+
+    function setVisibility(el, shouldShow) {
+      el.classList.toggle("hidden", !shouldShow);
+    }
+
+    function clearList(listEl, emptyEl) {
+      listEl.innerHTML = "";
+      emptyEl.style.display = "block";
+    }
+
+    function appendListItem(listEl, emptyEl, html) {
+      emptyEl.style.display = "none";
+      const item = document.createElement("div");
+      item.className = "list-item";
+      item.innerHTML = html;
+      listEl.appendChild(item);
+    }
+
+    function setProfile(userData) {
+      welcomeText.textContent = `Welcome back, ${userData.username || "User"}.`;
+      roleBadge.textContent = userData.role || "Employee";
+
+      profileUsername.textContent = formatValue(userData.username);
+      profileEmail.textContent = formatValue(userData.email);
+      profileEmployeeId.textContent = formatValue(userData.employeeId);
+      profileDepartment.textContent = formatValue(userData.departmentName);
+      profileRole.textContent = formatValue(userData.role);
+      profileStatus.textContent = formatValue(userData.status);
+    }
+
+    async function loadMyWriteups(userData) {
+      clearList(writeupsList, writeupsEmpty);
+      myWriteupsCount.textContent = "0";
+
+      try {
+        const q = query(
+          collection(db, "writeUps"),
+          where("employeeId", "==", userData.employeeId),
+          limit(10)
+        );
+
+        const snap = await getDocs(q);
+        myWriteupsCount.textContent = String(snap.size);
+
+        snap.forEach((docSnap) => {
+          const data = docSnap.data();
+          const status = data.status || "active";
+          appendListItem(
+            writeupsList,
+            writeupsEmpty,
+            `
+              <div class="list-item-top">
+                <div><strong>${data.category || "Write-Up"}</strong></div>
+                <span class="${getPillClass(status)}">${status}</span>
+              </div>
+              <div><strong>Reason:</strong> ${data.reason || "No reason provided."}</div>
+              <div><strong>Issued By:</strong> ${data.issuedByUsername || data.issuedBy || "Unknown"}</div>
+            `
+          );
+        });
+      } catch (error) {
+        console.error("Write-ups load error:", error);
+      }
+    }
+
+    async function loadMyAppeals(userData) {
+      clearList(appealsList, appealsEmpty);
+      myAppealsCount.textContent = "0";
+
+      try {
+        const q = query(
+          collection(db, "appeals"),
+          where("employeeId", "==", userData.employeeId),
+          limit(10)
+        );
+
+        const snap = await getDocs(q);
+        myAppealsCount.textContent = String(snap.size);
+
+        snap.forEach((docSnap) => {
+          const data = docSnap.data();
+          const status = data.status || "pending";
+          appendListItem(
+            appealsList,
+            appealsEmpty,
+            `
+              <div class="list-item-top">
+                <div><strong>Appeal</strong></div>
+                <span class="${getPillClass(status)}">${status}</span>
+              </div>
+              <div><strong>Write-Up ID:</strong> ${data.writeUpId || "—"}</div>
+              <div><strong>Reason:</strong> ${data.appealReason || "No reason provided."}</div>
+            `
+          );
+        });
+      } catch (error) {
+        console.error("Appeals load error:", error);
+      }
+    }
+
+    async function loadManagerAppeals(userData) {
+      pendingAppealsCount.textContent = "0";
+
+      if (!canReviewAppeals(userData)) {
+        return;
+      }
+
+      try {
+        const q = query(
+          collection(db, "appeals"),
+          where("departmentId", "==", userData.departmentId),
+          where("status", "==", "pending"),
+          limit(20)
+        );
+
+        const snap = await getDocs(q);
+        pendingAppealsCount.textContent = String(snap.size);
+      } catch (error) {
+        console.error("Pending appeals load error:", error);
+      }
+    }
+
+    async function loadPendingSignups(userData) {
+      clearList(signupsList, signupsEmpty);
+      pendingSignupsCount.textContent = "0";
+
+      if (!canManageSignups(userData)) {
+        signupsEmpty.textContent = "You do not have access to pending signup requests.";
+        signupsEmpty.style.display = "block";
+        return;
+      }
+
+      try {
+        const q = query(
+          collection(db, "signupRequests"),
+          where("departmentId", "==", userData.departmentId),
+          where("status", "==", "pending"),
+          limit(20)
+        );
+
+        const snap = await getDocs(q);
+        pendingSignupsCount.textContent = String(snap.size);
+
+        snap.forEach((docSnap) => {
+          const data = docSnap.data();
+          appendListItem(
+            signupsList,
+            signupsEmpty,
+            `
+              <div class="list-item-top">
+                <div><strong>${data.username || "Unknown User"}</strong></div>
+                <span class="${getPillClass(data.status)}">${data.status || "pending"}</span>
+              </div>
+              <div><strong>Employee ID:</strong> ${data.employeeId || "—"}</div>
+              <div><strong>Email:</strong> ${data.email || "—"}</div>
+            `
+          );
+        });
+      } catch (error) {
+        console.error("Pending signups load error:", error);
+      }
+    }
+
+    function applyRoleView(userData) {
+      setVisibility(issueWriteupBtn, canIssueWriteups(userData));
+      setVisibility(reviewAppealsBtn, canReviewAppeals(userData));
+      setVisibility(manageSignupsBtn, canManageSignups(userData));
+    }
+
+    async function loadDashboard(user, userData) {
+      currentUserData = userData;
+      clearMessage();
+      setProfile(userData);
+      applyRoleView(userData);
+
+      await Promise.all([
+        loadMyWriteups(userData),
+        loadMyAppeals(userData),
+        loadManagerAppeals(userData),
+        loadPendingSignups(userData)
+      ]);
+
+      loadingScreen.classList.add("hidden");
+      appEl.classList.remove("hidden");
+    }
+
+    async function initializeDashboard(user) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          await signOut(auth);
+          window.location.href = "login.html";
+          return;
+        }
+
+        const userData = userSnap.data();
+
+        if ((userData.status || "").toLowerCase() !== "active") {
+          await signOut(auth);
+          window.location.href = "login.html";
+          return;
+        }
+
+        await loadDashboard(user, userData);
+      } catch (error) {
+        console.error("Dashboard initialization error:", error);
+        loadingScreen.textContent = "Failed to load dashboard.";
+      }
+    }
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Logout error:", error);
+        showMessage("Could not log out right now.", "error");
+      }
+    });
+
+    refreshBtn.addEventListener("click", async () => {
+      if (!auth.currentUser || !currentUserData) return;
+      showMessage("Refreshing dashboard...", "success");
+      await loadDashboard(auth.currentUser, currentUserData);
+      setTimeout(() => clearMessage(), 1200);
+    });
+
+    viewMyWriteupsBtn.addEventListener("click", () => {
+      document.getElementById("writeupsList").scrollIntoView({ behavior: "smooth" });
+    });
+
+    submitAppealBtn.addEventListener("click", () => {
+      showMessage("The appeal form page will be connected next.", "success");
+    });
+
+    issueWriteupBtn.addEventListener("click", () => {
+      showMessage("The write-up creation page will be connected next.", "success");
+    });
+
+    reviewAppealsBtn.addEventListener("click", () => {
+      document.getElementById("appealsList").scrollIntoView({ behavior: "smooth" });
+    });
+
+    manageSignupsBtn.addEventListener("click", () => {
+      document.getElementById("signupsList").scrollIntoView({ behavior: "smooth" });
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      await initializeDashboard(user);
+    });
+  </script>
+</body>
+</html>
