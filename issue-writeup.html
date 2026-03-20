@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Issue Write-Up</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #111827;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: white;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: #dbeafe;
+      font-size: 14px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-btn {
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .topbar-btn.primary {
+      background: white;
+      color: #1d4ed8;
+    }
+
+    .topbar-btn.secondary {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .card-subtitle {
+      margin: 0 0 20px;
+      color: #6b7280;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .message {
+      display: none;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field-group {
+      margin-bottom: 16px;
+    }
+
+    .field-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 14px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      font-family: Arial, sans-serif;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .employee-box {
+      border: 1px solid #e5e7eb;
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .employee-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .employee-item .label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 5px;
+    }
+
+    .employee-item .value {
+      font-size: 15px;
+      color: #111827;
+      word-break: break-word;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn.secondary {
+      background: #e5edff;
+      color: #1d4ed8;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .small-note {
+      margin-top: 10px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .loading-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #f3f6fb;
+      color: #374151;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      .grid,
+      .employee-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingScreen" class="loading-screen">Loading write-up form...</div>
+
+  <div id="app" class="hidden">
+    <div class="topbar">
+      <div>
+        <h1>Issue Write-Up</h1>
+        <p>Create a disciplinary record for an employee.</p>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="dashboardBtn" class="topbar-btn secondary">Back to Dashboard</button>
+        <button id="logoutBtn" class="topbar-btn primary">Log Out</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="messageBox" class="message"></div>
+
+      <div class="card">
+        <h2>Employee Lookup</h2>
+        <p class="card-subtitle">
+          Enter an Employee ID to load the employee record before issuing a write-up.
+        </p>
+
+        <div class="grid">
+          <div class="field-group">
+            <label for="employeeIdLookup">Employee ID</label>
+            <input type="text" id="employeeIdLookup" maxlength="30" placeholder="Enter Employee ID" />
+          </div>
+
+          <div class="field-group">
+            <label>&nbsp;</label>
+            <button id="loadEmployeeBtn" class="btn secondary" style="width:100%;">Load Employee</button>
+          </div>
+        </div>
+
+        <div id="employeeDetailsCard" class="employee-box hidden">
+          <div class="employee-grid">
+            <div class="employee-item">
+              <div class="label">Username</div>
+              <div id="employeeUsername" class="value">—</div>
+            </div>
+
+            <div class="employee-item">
+              <div class="label">Employee ID</div>
+              <div id="employeeEmployeeId" class="value">—</div>
+            </div>
+
+            <div class="employee-item">
+              <div class="label">Department</div>
+              <div id="employeeDepartment" class="value">—</div>
+            </div>
+
+            <div class="employee-item">
+              <div class="label">Role</div>
+              <div id="employeeRole" class="value">—</div>
+            </div>
+
+            <div class="employee-item">
+              <div class="label">Status</div>
+              <div id="employeeStatus" class="value">—</div>
+            </div>
+
+            <div class="employee-item">
+              <div class="label">Email</div>
+              <div id="employeeEmail" class="value">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Write-Up Details</h2>
+        <p class="card-subtitle">
+          Complete all required fields before submitting the write-up.
+        </p>
+
+        <form id="writeupForm">
+          <div class="grid">
+            <div class="field-group">
+              <label for="category">Category</label>
+              <select id="category" required>
+                <option value="">Select a category</option>
+                <option value="Coaching Note">Coaching Note</option>
+                <option value="Verbal Warning">Verbal Warning</option>
+                <option value="Written Warning">Written Warning</option>
+                <option value="Final Warning">Final Warning</option>
+                <option value="Policy Violation">Policy Violation</option>
+                <option value="Suspension Recommendation">Suspension Recommendation</option>
+                <option value="Termination Recommendation">Termination Recommendation</option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label for="severity">Severity</label>
+              <select id="severity" required>
+                <option value="">Select severity</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Critical">Critical</option>
+              </select>
+            </div>
+
+            <div class="field-group full">
+              <label for="reason">Reason</label>
+              <textarea id="reason" required placeholder="Enter the reason for the write-up."></textarea>
+            </div>
+
+            <div class="field-group full">
+              <label for="managerNotes">Manager Notes</label>
+              <textarea id="managerNotes" placeholder="Enter manager notes or internal explanation."></textarea>
+            </div>
+
+            <div class="field-group full">
+              <label for="evidenceLinks">Evidence Links</label>
+              <textarea id="evidenceLinks" placeholder="Paste any relevant evidence links, screenshots, or references."></textarea>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="submit" id="submitWriteupBtn" class="btn primary">Issue Write-Up</button>
+            <button type="button" id="resetBtn" class="btn secondary">Reset Form</button>
+          </div>
+
+          <div class="small-note">
+            Only managers and higher should issue disciplinary records. All submissions should be accurate and professional.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDE0nhogdC9LHPEhSlUF1AqnXmwPU64cXg",
+      authDomain: "company-discipline-portal.firebaseapp.com",
+      projectId: "company-discipline-portal",
+      storageBucket: "company-discipline-portal.firebasestorage.app",
+      messagingSenderId: "991390225414",
+      appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const appEl = document.getElementById("app");
+    const messageBox = document.getElementById("messageBox");
+
+    const dashboardBtn = document.getElementById("dashboardBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const employeeIdLookup = document.getElementById("employeeIdLookup");
+    const loadEmployeeBtn = document.getElementById("loadEmployeeBtn");
+
+    const employeeDetailsCard = document.getElementById("employeeDetailsCard");
+    const employeeUsername = document.getElementById("employeeUsername");
+    const employeeEmployeeId = document.getElementById("employeeEmployeeId");
+    const employeeDepartment = document.getElementById("employeeDepartment");
+    const employeeRole = document.getElementById("employeeRole");
+    const employeeStatus = document.getElementById("employeeStatus");
+    const employeeEmail = document.getElementById("employeeEmail");
+
+    const writeupForm = document.getElementById("writeupForm");
+    const categoryInput = document.getElementById("category");
+    const severityInput = document.getElementById("severity");
+    const reasonInput = document.getElementById("reason");
+    const managerNotesInput = document.getElementById("managerNotes");
+    const evidenceLinksInput = document.getElementById("evidenceLinks");
+    const submitWriteupBtn = document.getElementById("submitWriteupBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    let currentPortalUser = null;
+    let selectedEmployee = null;
+
+    function showMessage(text, type) {
+      messageBox.textContent = text;
+      messageBox.className = `message ${type}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearMessage() {
+      messageBox.textContent = "";
+      messageBox.className = "message";
+    }
+
+    function normalizeText(value) {
+      return value.trim();
+    }
+
+    function normalizeRole(role) {
+      return (role || "").toLowerCase();
+    }
+
+    function hasWriteupAccess(userData) {
+      const role = normalizeRole(userData.role);
+      return (
+        userData.permissions?.canIssueWriteups === true ||
+        role === "manager" ||
+        role === "admin" ||
+        role === "owner" ||
+        role === "administrator"
+      );
+    }
+
+    function fillEmployeeDetails(employeeData) {
+      employeeUsername.textContent = employeeData.username || "—";
+      employeeEmployeeId.textContent = employeeData.employeeId || "—";
+      employeeDepartment.textContent = employeeData.departmentName || "—";
+      employeeRole.textContent = employeeData.role || "—";
+      employeeStatus.textContent = employeeData.status || "—";
+      employeeEmail.textContent = employeeData.email || "—";
+      employeeDetailsCard.classList.remove("hidden");
+    }
+
+    function clearEmployeeDetails() {
+      selectedEmployee = null;
+      employeeUsername.textContent = "—";
+      employeeEmployeeId.textContent = "—";
+      employeeDepartment.textContent = "—";
+      employeeRole.textContent = "—";
+      employeeStatus.textContent = "—";
+      employeeEmail.textContent = "—";
+      employeeDetailsCard.classList.add("hidden");
+    }
+
+    async function loadPortalUser(firebaseUser) {
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      const userData = userSnap.data();
+
+      if ((userData.status || "").toLowerCase() !== "active") {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      if (!hasWriteupAccess(userData)) {
+        showMessage("You do not have permission to issue write-ups.", "error");
+        submitWriteupBtn.disabled = true;
+        loadEmployeeBtn.disabled = true;
+      }
+
+      return userData;
+    }
+
+    async function handleLoadEmployee() {
+      clearMessage();
+
+      const employeeId = normalizeText(employeeIdLookup.value);
+
+      if (!employeeId) {
+        showMessage("Please enter an Employee ID.", "error");
+        return;
+      }
+
+      loadEmployeeBtn.disabled = true;
+      loadEmployeeBtn.textContent = "Loading...";
+
+      try {
+        const employeeRef = doc(db, "employees", employeeId);
+        const employeeSnap = await getDoc(employeeRef);
+
+        if (!employeeSnap.exists()) {
+          clearEmployeeDetails();
+          showMessage("No employee was found with that Employee ID.", "error");
+          return;
+        }
+
+        const employeeData = employeeSnap.data();
+
+        if (!employeeData.employeeId) {
+          employeeData.employeeId = employeeId;
+        }
+
+        if (currentPortalUser && String(employeeData.employeeId) === String(currentPortalUser.employeeId)) {
+          clearEmployeeDetails();
+          showMessage("You cannot issue a write-up to yourself.", "error");
+          return;
+        }
+
+        selectedEmployee = employeeData;
+        fillEmployeeDetails(employeeData);
+        showMessage("Employee loaded successfully.", "success");
+      } catch (error) {
+        console.error("Employee lookup error:", error);
+        clearEmployeeDetails();
+        showMessage("An unexpected error occurred while loading the employee.", "error");
+      } finally {
+        loadEmployeeBtn.disabled = false;
+        loadEmployeeBtn.textContent = "Load Employee";
+      }
+    }
+
+    async function handleSubmitWriteup(event) {
+      event.preventDefault();
+      clearMessage();
+
+      if (!currentPortalUser) {
+        showMessage("You must be signed in to issue a write-up.", "error");
+        return;
+      }
+
+      if (!hasWriteupAccess(currentPortalUser)) {
+        showMessage("You do not have permission to issue write-ups.", "error");
+        return;
+      }
+
+      if (!selectedEmployee) {
+        showMessage("Please load an employee before issuing a write-up.", "error");
+        return;
+      }
+
+      const category = normalizeText(categoryInput.value);
+      const severity = normalizeText(severityInput.value);
+      const reason = normalizeText(reasonInput.value);
+      const managerNotes = normalizeText(managerNotesInput.value);
+      const evidenceLinks = normalizeText(evidenceLinksInput.value);
+
+      if (!category || !severity || !reason) {
+        showMessage("Please complete all required write-up fields.", "error");
+        return;
+      }
+
+      submitWriteupBtn.disabled = true;
+      submitWriteupBtn.textContent = "Submitting...";
+
+      try {
+        const writeupData = {
+          employeeId: selectedEmployee.employeeId || "",
+          employeeUsername: selectedEmployee.username || "",
+          employeeEmail: selectedEmployee.email || "",
+          employeeRole: selectedEmployee.role || "",
+          departmentId: selectedEmployee.departmentId || "",
+          departmentName: selectedEmployee.departmentName || "",
+
+          category: category,
+          severity: severity,
+          reason: reason,
+          managerNotes: managerNotes,
+          evidenceLinks: evidenceLinks,
+
+          status: "active",
+
+          issuedBy: currentPortalUser.uid || "",
+          issuedByEmployeeId: currentPortalUser.employeeId || "",
+          issuedByUsername: currentPortalUser.username || "",
+          issuedByRole: currentPortalUser.role || "",
+          issuedByDepartmentId: currentPortalUser.departmentId || "",
+          issuedByDepartmentName: currentPortalUser.departmentName || "",
+
+          acknowledged: false,
+          underAppeal: false,
+
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+
+        await addDoc(collection(db, "writeUps"), writeupData);
+
+        showMessage("The write-up was issued successfully.", "success");
+        writeupForm.reset();
+      } catch (error) {
+        console.error("Write-up submission error:", error);
+        showMessage("An unexpected error occurred while issuing the write-up.", "error");
+      } finally {
+        submitWriteupBtn.disabled = false;
+        submitWriteupBtn.textContent = "Issue Write-Up";
+      }
+    }
+
+    dashboardBtn.addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Logout error:", error);
+        showMessage("Could not log out right now.", "error");
+      }
+    });
+
+    loadEmployeeBtn.addEventListener("click", handleLoadEmployee);
+
+    employeeIdLookup.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleLoadEmployee();
+      }
+    });
+
+    writeupForm.addEventListener("submit", handleSubmitWriteup);
+
+    resetBtn.addEventListener("click", () => {
+      writeupForm.reset();
+      clearMessage();
+    });
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        currentPortalUser = await loadPortalUser(firebaseUser);
+
+        if (!currentPortalUser) {
+          return;
+        }
+
+        loadingScreen.classList.add("hidden");
+        appEl.classList.remove("hidden");
+      } catch (error) {
+        console.error("Initialization error:", error);
+        loadingScreen.textContent = "Failed to load the write-up page.";
+      }
+    });
+  </script>
+</body>
+</html>
