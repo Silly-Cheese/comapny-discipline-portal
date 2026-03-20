@@ -5,134 +5,190 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Employee Signup Request</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7fb;
-      margin: 0;
-      padding: 40px 20px;
-      color: #1f2937;
+    * {
+      box-sizing: border-box;
     }
 
-    .container {
-      max-width: 500px;
-      margin: 0 auto;
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: #111827;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
       background: #ffffff;
-      border-radius: 14px;
-      padding: 28px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      border-radius: 18px;
+      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22);
+      padding: 34px 30px;
     }
 
     h1 {
-      margin-top: 0;
-      font-size: 28px;
+      margin: 0 0 10px 0;
       text-align: center;
+      font-size: 30px;
+      color: #111827;
     }
 
-    p.description {
+    .subtitle {
+      margin: 0 0 28px 0;
       text-align: center;
       color: #6b7280;
-      margin-bottom: 24px;
-      line-height: 1.5;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .field-group {
+      margin-bottom: 18px;
     }
 
     label {
       display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      margin-top: 16px;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 14px;
     }
 
     input {
       width: 100%;
-      box-sizing: border-box;
-      padding: 12px 14px;
       border: 1px solid #d1d5db;
-      border-radius: 10px;
+      border-radius: 12px;
+      padding: 13px 14px;
       font-size: 15px;
       outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
     input:focus {
       border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
     }
 
-    button {
+    .submit-btn {
       width: 100%;
-      margin-top: 24px;
-      padding: 13px;
       border: none;
-      border-radius: 10px;
-      background: #2563eb;
-      color: white;
+      border-radius: 12px;
+      padding: 14px;
       font-size: 16px;
       font-weight: 700;
+      color: #ffffff;
+      background: #2563eb;
       cursor: pointer;
+      transition: background 0.15s ease;
+      margin-top: 8px;
     }
 
-    button:hover {
+    .submit-btn:hover {
       background: #1d4ed8;
     }
 
-    button:disabled {
+    .submit-btn:disabled {
       background: #93c5fd;
       cursor: not-allowed;
     }
 
     .message {
-      margin-top: 18px;
-      padding: 12px 14px;
-      border-radius: 10px;
       display: none;
-      line-height: 1.5;
+      margin-top: 18px;
+      padding: 13px 14px;
+      border-radius: 12px;
       font-size: 14px;
+      line-height: 1.5;
     }
 
     .message.success {
+      display: block;
       background: #dcfce7;
       color: #166534;
-      display: block;
+      border: 1px solid #bbf7d0;
     }
 
     .message.error {
+      display: block;
       background: #fee2e2;
       color: #991b1b;
-      display: block;
+      border: 1px solid #fecaca;
     }
 
-    .small-note {
-      margin-top: 18px;
-      font-size: 13px;
-      color: #6b7280;
+    .footer-note {
+      margin-top: 20px;
       text-align: center;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 18px;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .link-wrap {
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .card {
+        padding: 26px 20px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Signup Request</h1>
-    <p class="description">
-      Enter your Employee ID, username, and email to request access to the employee system.
-      Your department manager will review your request before access is granted.
+  <div class="card">
+    <h1>Request Access</h1>
+    <p class="subtitle">
+      Enter your Employee ID, username, and email address to request access to the employee system.
+      Your department manager must approve your request before you can create your account.
     </p>
 
     <form id="signupForm">
-      <label for="employeeId">Employee ID</label>
-      <input type="text" id="employeeId" maxlength="20" required />
+      <div class="field-group">
+        <label for="employeeId">Employee ID</label>
+        <input type="text" id="employeeId" name="employeeId" maxlength="30" required />
+      </div>
 
-      <label for="username">Username</label>
-      <input type="text" id="username" maxlength="50" required />
+      <div class="field-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" maxlength="50" required />
+      </div>
 
-      <label for="email">Email Address</label>
-      <input type="email" id="email" maxlength="120" required />
+      <div class="field-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" maxlength="120" required />
+      </div>
 
-      <button type="submit" id="submitBtn">Submit Signup Request</button>
+      <button type="submit" id="submitBtn" class="submit-btn">Submit Signup Request</button>
     </form>
 
     <div id="messageBox" class="message"></div>
 
-    <div class="small-note">
-      Approval is required before your account can be activated.
+    <div class="footer-note">
+      If your request is approved, you will receive an email with instructions for creating your password.
+    </div>
+
+    <div class="link-wrap">
+      <a href="index.html" class="back-link">Back to Home</a>
     </div>
   </div>
 
@@ -159,6 +215,8 @@
       appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
     };
 
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx66XksoJLgvQyoGQkRBPDLUeNnedrGB5kDS4jVtONTNyD5L5DflUuBCJvGyrFjUvfgYQ/exec";
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -179,7 +237,7 @@
       messageBox.className = "message";
     }
 
-    function normalizeValue(value) {
+    function normalizeText(value) {
       return value.trim();
     }
 
@@ -191,16 +249,37 @@
       return value.trim().toLowerCase();
     }
 
+    async function sendManagerApprovalEmail(payload) {
+      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
+        console.warn("Apps Script URL has not been set yet.");
+        return;
+      }
+
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || "Approval email could not be sent.");
+      }
+    }
+
     signupForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       clearMessage();
 
-      const employeeId = normalizeValue(employeeIdInput.value);
-      const username = normalizeValue(usernameInput.value);
+      const employeeId = normalizeText(employeeIdInput.value);
+      const username = normalizeText(usernameInput.value);
       const email = normalizeEmail(emailInput.value);
 
       if (!employeeId || !username || !email) {
-        showMessage("Please complete all fields before submitting.", "error");
+        showMessage("Please fill out all fields before submitting.", "error");
         return;
       }
 
@@ -212,79 +291,64 @@
         const employeeSnap = await getDoc(employeeRef);
 
         if (!employeeSnap.exists()) {
-          showMessage("Employee ID was not found. Please contact management.", "error");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Submit Signup Request";
+          showMessage("That Employee ID was not found. Please contact management.", "error");
           return;
         }
 
         const employeeData = employeeSnap.data();
 
-        if (!employeeData.canSignup) {
-          showMessage("This employee record is not currently allowed to sign up.", "error");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Submit Signup Request";
+        if (employeeData.canSignup !== true) {
+          showMessage("This employee record is not allowed to sign up at this time.", "error");
           return;
         }
 
-        if (employeeData.status !== "active") {
+        if ((employeeData.status || "").toLowerCase() !== "active") {
           showMessage("This employee record is not active. Please contact management.", "error");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Submit Signup Request";
           return;
         }
 
         if (employeeData.accountCreated === true) {
           showMessage("An account has already been created for this Employee ID.", "error");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Submit Signup Request";
           return;
         }
 
         if (employeeData.loginEnabled === true) {
-          showMessage("This account already appears to be enabled. Please use the sign in page.", "error");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Submit Signup Request";
+          showMessage("This account is already enabled. Please use the sign in page.", "error");
           return;
         }
 
         const storedUsername = normalizeUsername(employeeData.username || "");
         const enteredUsername = normalizeUsername(username);
 
-        if (storedUsername !== enteredUsername) {
+        if (!storedUsername || storedUsername !== enteredUsername) {
           showMessage("The username does not match the employee record.", "error");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Submit Signup Request";
           return;
         }
 
         const storedEmail = normalizeEmail(employeeData.email || "");
+
         if (storedEmail && storedEmail !== email) {
           showMessage("The email address does not match the employee record.", "error");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Submit Signup Request";
           return;
         }
 
-        const pendingQuery = query(
+        const pendingRequestQuery = query(
           collection(db, "signupRequests"),
           where("employeeId", "==", employeeId),
           where("status", "==", "pending")
         );
 
-        const pendingSnap = await getDocs(pendingQuery);
+        const pendingRequestSnap = await getDocs(pendingRequestQuery);
 
-        if (!pendingSnap.empty) {
+        if (!pendingRequestSnap.empty) {
           showMessage("A pending signup request already exists for this Employee ID.", "error");
-          submitBtn.disabled = false;
-          submitBtn.textContent = "Submit Signup Request";
           return;
         }
 
         const signupRequestData = {
           requestId: "auto",
           employeeId: employeeId,
-          username: employeeData.username,
+          username: employeeData.username || username,
           email: email,
           departmentId: employeeData.departmentId || "",
           departmentName: employeeData.departmentName || "",
@@ -304,17 +368,27 @@
 
         const docRef = await addDoc(collection(db, "signupRequests"), signupRequestData);
 
+        await sendManagerApprovalEmail({
+          requestId: docRef.id,
+          employeeId: employeeId,
+          username: employeeData.username || username,
+          email: email,
+          departmentName: employeeData.departmentName || "",
+          managerEmail: employeeData.managerEmail || ""
+        });
+
         showMessage(
           "Your signup request has been submitted successfully and is now waiting for manager approval.",
           "success"
         );
 
         signupForm.reset();
-
-        console.log("Signup request created with ID:", docRef.id);
       } catch (error) {
-        console.error("Signup request error:", error);
-        showMessage("An unexpected error occurred while submitting your request.", "error");
+        console.error("Signup submission error:", error);
+        showMessage(
+          error.message || "An unexpected error occurred while submitting your signup request.",
+          "error"
+        );
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Submit Signup Request";
