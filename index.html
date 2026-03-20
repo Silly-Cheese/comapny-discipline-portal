@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee System</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 40px;
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 500px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    p {
+      margin-bottom: 30px;
+      color: #dbeafe;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .signup {
+      background: white;
+      color: #1e3a8a;
+    }
+
+    .signup:hover {
+      background: #e0e7ff;
+    }
+
+    .login {
+      background: transparent;
+      border: 2px solid white;
+      color: white;
+    }
+
+    .login:hover {
+      background: rgba(255,255,255,0.15);
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #c7d2fe;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Employee Portal</h1>
+    <p>
+      Access your employee account, view records, and manage requests through the official system.
+    </p>
+
+    <button class="btn signup" onclick="goToSignup()">
+      Request Access
+    </button>
+
+    <button class="btn login" onclick="goToLogin()">
+      Sign In
+    </button>
+
+    <div class="footer">
+      Access requires manager approval.
+    </div>
+  </div>
+
+  <script>
+    function goToSignup() {
+      window.location.href = "signup.html";
+    }
+
+    function goToLogin() {
+      window.location.href = "login.html"; // we will build this next
+    }
+  </script>
+
+</body>
+</html>
