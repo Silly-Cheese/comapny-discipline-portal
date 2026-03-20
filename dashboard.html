@@ -606,17 +606,27 @@
           const data = docSnap.data();
           const status = data.status || "active";
           appendListItem(
-            writeupsList,
-            writeupsEmpty,
-            `
-              <div class="list-item-top">
-                <div><strong>${data.category || "Write-Up"}</strong></div>
-                <span class="${getPillClass(status)}">${status}</span>
-              </div>
-              <div><strong>Reason:</strong> ${data.reason || "No reason provided."}</div>
-              <div><strong>Issued By:</strong> ${data.issuedByUsername || data.issuedBy || "Unknown"}</div>
-            `
-          );
+            appendListItem(
+  writeupsList,
+  writeupsEmpty,
+  `
+    <div class="list-item-top">
+      <div><strong>${data.category || "Write-Up"}</strong></div>
+      <span class="${getPillClass(status)}">${status}</span>
+    </div>
+    <div><strong>Reason:</strong> ${data.reason || "No reason provided."}</div>
+    <div><strong>Issued By:</strong> ${data.issuedByUsername || data.issuedBy || "Unknown"}</div>
+    <div style="margin-top:10px;">
+      <button
+        class="action-btn secondary open-appeal-btn"
+        data-writeup-id="${docSnap.id}"
+        style="width:auto;padding:10px 14px;"
+      >
+        View / Appeal
+      </button>
+    </div>
+  `
+);
         });
       } catch (error) {
         console.error("Write-ups load error:", error);
