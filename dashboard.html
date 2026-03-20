@@ -795,9 +795,9 @@
       showMessage("The appeal form page will be connected next.", "success");
     });
 
-    issueWriteupBtn.addEventListener("click", () => {
-      showMessage("The write-up creation page will be connected next.", "success");
-    });
+issueWriteupBtn.addEventListener("click", () => {
+  window.location.href = "issue-writeup.html";
+});
 
     reviewAppealsBtn.addEventListener("click", () => {
       document.getElementById("appealsList").scrollIntoView({ behavior: "smooth" });
