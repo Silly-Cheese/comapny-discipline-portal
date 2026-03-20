@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appeal Write-Up</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #111827;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: white;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: #dbeafe;
+      font-size: 14px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-btn {
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .topbar-btn.primary {
+      background: white;
+      color: #1d4ed8;
+    }
+
+    .topbar-btn.secondary {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .card-subtitle {
+      margin: 0 0 20px;
+      color: #6b7280;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .message {
+      display: none;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .detail-item {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .detail-item.full {
+      grid-column: 1 / -1;
+    }
+
+    .detail-label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .detail-value {
+      font-size: 15px;
+      color: #111827;
+      word-break: break-word;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e5edff;
+      color: #1d4ed8;
+    }
+
+    .pill.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .pill.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .pill.danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .field-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      font-family: Arial, sans-serif;
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn.secondary {
+      background: #e5edff;
+      color: #1d4ed8;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .small-note {
+      margin-top: 10px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .loading-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #f3f6fb;
+      color: #374151;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingScreen" class="loading-screen">Loading write-up...</div>
+
+  <div id="app" class="hidden">
+    <div class="topbar">
+      <div>
+        <h1>Appeal Write-Up</h1>
+        <p>Review the disciplinary record and submit your appeal.</p>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="dashboardBtn" class="topbar-btn secondary">Back to Dashboard</button>
+        <button id="logoutBtn" class="topbar-btn primary">Log Out</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="messageBox" class="message"></div>
+
+      <div class="card">
+        <h2>Write-Up Details</h2>
+        <p class="card-subtitle">
+          Review the information below before submitting an appeal.
+        </p>
+
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Category</div>
+            <div id="writeupCategory" class="detail-value">—</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Severity</div>
+            <div id="writeupSeverity" class="detail-value">—</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Status</div>
+            <div id="writeupStatus" class="detail-value">—</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Under Appeal</div>
+            <div id="writeupUnderAppeal" class="detail-value">—</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Issued By</div>
+            <div id="writeupIssuedBy" class="detail-value">—</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Department</div>
+            <div id="writeupDepartment" class="detail-value">—</div>
+          </div>
+
+          <div class="detail-item full">
+            <div class="detail-label">Reason</div>
+            <div id="writeupReason" class="detail-value">—</div>
+          </div>
+
+          <div class="detail-item full">
+            <div class="detail-label">Manager Notes</div>
+            <div id="writeupManagerNotes" class="detail-value">—</div>
+          </div>
+
+          <div class="detail-item full">
+            <div class="detail-label">Evidence Links</div>
+            <div id="writeupEvidenceLinks" class="detail-value">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Submit Appeal</h2>
+        <p class="card-subtitle">
+          Explain clearly why you believe this write-up should be reviewed.
+        </p>
+
+        <form id="appealForm">
+          <div class="field-group">
+            <label for="appealReason">Appeal Reason</label>
+            <textarea id="appealReason" required placeholder="Enter your appeal reason here."></textarea>
+          </div>
+
+          <div class="btn-row">
+            <button type="submit" id="submitAppealBtn" class="btn primary">Submit Appeal</button>
+            <button type="button" id="cancelBtn" class="btn secondary">Cancel</button>
+          </div>
+
+          <div class="small-note">
+            You may only submit one active appeal for this write-up at a time.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      addDoc,
+      updateDoc,
+      query,
+      where,
+      getDocs,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDE0nhogdC9LHPEhSlUF1AqnXmwPU64cXg",
+      authDomain: "company-discipline-portal.firebaseapp.com",
+      projectId: "company-discipline-portal",
+      storageBucket: "company-discipline-portal.firebasestorage.app",
+      messagingSenderId: "991390225414",
+      appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const writeUpId = params.get("id");
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const appEl = document.getElementById("app");
+    const messageBox = document.getElementById("messageBox");
+
+    const dashboardBtn = document.getElementById("dashboardBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const cancelBtn = document.getElementById("cancelBtn");
+
+    const writeupCategory = document.getElementById("writeupCategory");
+    const writeupSeverity = document.getElementById("writeupSeverity");
+    const writeupStatus = document.getElementById("writeupStatus");
+    const writeupUnderAppeal = document.getElementById("writeupUnderAppeal");
+    const writeupIssuedBy = document.getElementById("writeupIssuedBy");
+    const writeupDepartment = document.getElementById("writeupDepartment");
+    const writeupReason = document.getElementById("writeupReason");
+    const writeupManagerNotes = document.getElementById("writeupManagerNotes");
+    const writeupEvidenceLinks = document.getElementById("writeupEvidenceLinks");
+
+    const appealForm = document.getElementById("appealForm");
+    const appealReasonInput = document.getElementById("appealReason");
+    const submitAppealBtn = document.getElementById("submitAppealBtn");
+
+    let currentPortalUser = null;
+    let currentWriteupDoc = null;
+    let currentWriteupData = null;
+
+    function showMessage(text, type) {
+      messageBox.textContent = text;
+      messageBox.className = `message ${type}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearMessage() {
+      messageBox.textContent = "";
+      messageBox.className = "message";
+    }
+
+    function normalizeText(value) {
+      return value.trim();
+    }
+
+    function formatValue(value) {
+      return value ? value : "—";
+    }
+
+    function getPill(status) {
+      const value = (status || "").toLowerCase();
+
+      if (value === "active" || value === "approved" || value === "completed") {
+        return `<span class="pill success">${status}</span>`;
+      }
+
+      if (value === "pending" || value === "under appeal") {
+        return `<span class="pill warning">${status}</span>`;
+      }
+
+      if (value === "denied" || value === "overturned" || value === "deleted") {
+        return `<span class="pill danger">${status}</span>`;
+      }
+
+      return `<span class="pill">${status || "—"}</span>`;
+    }
+
+    async function loadPortalUser(firebaseUser) {
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      const userData = userSnap.data();
+
+      if ((userData.status || "").toLowerCase() !== "active") {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      return userData;
+    }
+
+    async function loadWriteup() {
+      if (!writeUpId) {
+        throw new Error("No write-up ID was provided.");
+      }
+
+      const writeupRef = doc(db, "writeUps", writeUpId);
+      const writeupSnap = await getDoc(writeupRef);
+
+      if (!writeupSnap.exists()) {
+        throw new Error("That write-up could not be found.");
+      }
+
+      const data = writeupSnap.data();
+
+      if (!currentPortalUser || String(data.employeeId) !== String(currentPortalUser.employeeId)) {
+        throw new Error("You do not have permission to view or appeal this write-up.");
+      }
+
+      currentWriteupDoc = writeupRef;
+      currentWriteupData = data;
+
+      writeupCategory.textContent = formatValue(data.category);
+      writeupSeverity.textContent = formatValue(data.severity);
+      writeupStatus.innerHTML = getPill(data.status || "active");
+      writeupUnderAppeal.innerHTML = data.underAppeal === true
+        ? `<span class="pill warning">Yes</span>`
+        : `<span class="pill success">No</span>`;
+      writeupIssuedBy.textContent = formatValue(data.issuedByUsername || data.issuedBy);
+      writeupDepartment.textContent = formatValue(data.departmentName);
+      writeupReason.textContent = formatValue(data.reason);
+      writeupManagerNotes.textContent = formatValue(data.managerNotes);
+      writeupEvidenceLinks.textContent = formatValue(data.evidenceLinks);
+    }
+
+    async function existingPendingAppealExists() {
+      const q = query(
+        collection(db, "appeals"),
+        where("writeUpId", "==", writeUpId),
+        where("employeeId", "==", currentPortalUser.employeeId),
+        where("status", "==", "pending")
+      );
+
+      const snap = await getDocs(q);
+      return !snap.empty;
+    }
+
+    async function submitAppeal(event) {
+      event.preventDefault();
+      clearMessage();
+
+      if (!currentPortalUser) {
+        showMessage("You must be signed in to submit an appeal.", "error");
+        return;
+      }
+
+      if (!currentWriteupDoc || !currentWriteupData) {
+        showMessage("The write-up has not loaded properly.", "error");
+        return;
+      }
+
+      const appealReason = normalizeText(appealReasonInput.value);
+
+      if (!appealReason) {
+        showMessage("Please enter your appeal reason.", "error");
+        return;
+      }
+
+      if ((currentWriteupData.status || "").toLowerCase() !== "active") {
+        showMessage("Only active write-ups can be appealed.", "error");
+        return;
+      }
+
+      if (currentWriteupData.underAppeal === true) {
+        showMessage("This write-up is already under appeal.", "error");
+        return;
+      }
+
+      submitAppealBtn.disabled = true;
+      submitAppealBtn.textContent = "Submitting...";
+
+      try {
+        const alreadyExists = await existingPendingAppealExists();
+
+        if (alreadyExists) {
+          showMessage("A pending appeal already exists for this write-up.", "error");
+          return;
+        }
+
+        await addDoc(collection(db, "appeals"), {
+          writeUpId: writeUpId,
+          employeeId: currentPortalUser.employeeId,
+          employeeUsername: currentPortalUser.username || "",
+          employeeEmail: currentPortalUser.email || "",
+          departmentId: currentWriteupData.departmentId || currentPortalUser.departmentId || "",
+          departmentName: currentWriteupData.departmentName || currentPortalUser.departmentName || "",
+          status: "pending",
+          appealReason: appealReason,
+          reviewedBy: null,
+          reviewedAt: null,
+          decision: null,
+          decisionReason: null,
+          submittedAt: serverTimestamp()
+        });
+
+        await updateDoc(currentWriteupDoc, {
+          underAppeal: true,
+          updatedAt: serverTimestamp()
+        });
+
+        currentWriteupData.underAppeal = true;
+        writeupUnderAppeal.innerHTML = `<span class="pill warning">Yes</span>`;
+
+        showMessage("Your appeal was submitted successfully.", "success");
+        appealForm.reset();
+      } catch (error) {
+        console.error("Appeal submission error:", error);
+        showMessage(error.message || "An unexpected error occurred while submitting your appeal.", "error");
+      } finally {
+        submitAppealBtn.disabled = false;
+        submitAppealBtn.textContent = "Submit Appeal";
+      }
+    }
+
+    dashboardBtn.addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    cancelBtn.addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Logout error:", error);
+        showMessage("Could not log out right now.", "error");
+      }
+    });
+
+    appealForm.addEventListener("submit", submitAppeal);
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        currentPortalUser = await loadPortalUser(firebaseUser);
+
+        if (!currentPortalUser) {
+          return;
+        }
+
+        await loadWriteup();
+
+        loadingScreen.classList.add("hidden");
+        appEl.classList.remove("hidden");
+      } catch (error) {
+        console.error("Appeal page load error:", error);
+        loadingScreen.textContent = "Failed to load write-up.";
+      }
+    });
+  </script>
+</body>
+</html>
