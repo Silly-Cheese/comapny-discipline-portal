@@ -737,22 +737,22 @@
       setVisibility(manageSignupsBtn, canManageSignups(userData));
     }
 
-    async function loadDashboard(user, userData) {
-      currentUserData = userData;
-      clearMessage();
-      setProfile(userData);
-      applyRoleView(userData);
+   async function loadDashboard(user, userData) {
+  currentUserData = userData;
+  clearMessage();
+  setProfile(userData);
+  applyRoleView(userData);
 
-      await Promise.all([
-        loadMyWriteups(userData),
-        loadMyAppeals(userData),
-        loadManagerAppeals(userData),
-        loadPendingSignups(userData)
-      ]);
+  await Promise.all([
+    loadMyWriteups(userData),
+    loadMyAppeals(userData),
+    loadManagerAppeals(userData),
+    loadPendingSignups(userData)
+  ]);
 
-      loadingScreen.classList.add("hidden");
-      appEl.classList.remove("hidden");
-    }
+  loadingScreen.classList.add("hidden");
+  appEl.classList.remove("hidden");
+}
 
     async function initializeDashboard(user) {
       try {
@@ -817,14 +817,19 @@ issueWriteupBtn.addEventListener("click", () => {
       document.getElementById("signupsList").scrollIntoView({ behavior: "smooth" });
     });
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
+   onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
 
-      await initializeDashboard(user);
-    });
+  try {
+    await initializeDashboard(user);
+  } catch (error) {
+    console.error("Dashboard auth error:", error);
+    loadingScreen.textContent = "Failed to load dashboard.";
+  }
+});
   </script>
 </body>
 </html>
