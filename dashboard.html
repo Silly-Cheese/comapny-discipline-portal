@@ -554,7 +554,7 @@
         return "pill success";
       }
 
-      if (value === "denied" || value === "overturned" || value === "deleted") {
+      if (value === "denied" || value === "overturned" || value === "deleted" || value === "reduced") {
         return "pill danger";
       }
 
@@ -826,7 +826,12 @@
     });
 
     submitAppealBtn.addEventListener("click", () => {
-      showMessage("The appeal form page will be connected next.", "success");
+      const firstAppealButton = writeupsList.querySelector(".open-appeal-btn");
+      if (firstAppealButton) {
+        firstAppealButton.click();
+      } else {
+        showMessage("You do not have any write-ups available to appeal right now.", "error");
+      }
     });
 
     issueWriteupBtn.addEventListener("click", () => {
