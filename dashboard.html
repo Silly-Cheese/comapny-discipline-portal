@@ -405,6 +405,7 @@
             <button id="reviewAppealsBtn" class="action-btn hidden">Review Appeals</button>
             <button id="manageSignupsBtn" class="action-btn hidden">Manage Signups</button>
             <button id="addEmployeeBtn" class="action-btn hidden">Add Employee</button>
+            <button id="employeeManagementBtn" class="action-btn hidden">Employee Management</button>
           </div>
         </div>
 
@@ -501,6 +502,7 @@
     const reviewAppealsBtn = document.getElementById("reviewAppealsBtn");
     const manageSignupsBtn = document.getElementById("manageSignupsBtn");
     const addEmployeeBtn = document.getElementById("addEmployeeBtn");
+    const employeeManagementBtn = document.getElementById("employeeManagementBtn");
 
     const viewMyWriteupsBtn = document.getElementById("viewMyWriteupsBtn");
     const submitAppealBtn = document.getElementById("submitAppealBtn");
@@ -543,6 +545,11 @@
     }
 
     function canAddEmployees(userData) {
+      const role = normalizeRole(userData.role);
+      return role === "manager" || role === "admin" || role === "owner" || role === "administrator";
+    }
+
+    function canManageEmployees(userData) {
       const role = normalizeRole(userData.role);
       return role === "manager" || role === "admin" || role === "owner" || role === "administrator";
     }
@@ -750,6 +757,7 @@
       setVisibility(reviewAppealsBtn, canReviewAppeals(userData));
       setVisibility(manageSignupsBtn, canManageSignups(userData));
       setVisibility(addEmployeeBtn, canAddEmployees(userData));
+      setVisibility(employeeManagementBtn, canManageEmployees(userData));
     }
 
     async function loadDashboard(user, userData) {
@@ -848,6 +856,10 @@
 
     addEmployeeBtn.addEventListener("click", () => {
       window.location.href = "add-employee.html";
+    });
+
+    employeeManagementBtn.addEventListener("click", () => {
+      window.location.href = "employee-management.html";
     });
 
     onAuthStateChanged(auth, async (user) => {
