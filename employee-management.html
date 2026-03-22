@@ -6,12 +6,14 @@
   <title>Employee Management</title>
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #f3f6fb;
       color: #111827;
     }
+
     .topbar {
       background: linear-gradient(135deg, #0f172a, #1d4ed8);
       color: white;
@@ -22,9 +24,16 @@
       gap: 16px;
       flex-wrap: wrap;
     }
+
     .topbar h1 { margin: 0; font-size: 26px; }
     .topbar p { margin: 6px 0 0; color: #dbeafe; font-size: 14px; }
-    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .topbar-btn {
       border: none;
       padding: 10px 14px;
@@ -32,17 +41,24 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .topbar-btn.primary { background: white; color: #1d4ed8; }
+
+    .topbar-btn.primary {
+      background: white;
+      color: #1d4ed8;
+    }
+
     .topbar-btn.secondary {
       background: rgba(255,255,255,0.15);
       color: white;
       border: 1px solid rgba(255,255,255,0.2);
     }
+
     .container {
       max-width: 1150px;
       margin: 0 auto;
       padding: 24px;
     }
+
     .card {
       background: white;
       border-radius: 18px;
@@ -50,16 +66,19 @@
       padding: 24px;
       margin-bottom: 20px;
     }
+
     .card h2 {
       margin: 0 0 8px;
       font-size: 24px;
     }
+
     .card-subtitle {
       margin: 0 0 20px;
       color: #6b7280;
       line-height: 1.5;
       font-size: 14px;
     }
+
     .message {
       display: none;
       margin-bottom: 18px;
@@ -68,35 +87,50 @@
       font-size: 14px;
       line-height: 1.5;
     }
+
     .message.error {
       display: block;
       background: #fee2e2;
       color: #991b1b;
       border: 1px solid #fecaca;
     }
+
     .message.success {
       display: block;
       background: #dcfce7;
       color: #166534;
       border: 1px solid #bbf7d0;
     }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
     }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
+
     .detail-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
     }
+
     .detail-box {
       background: #f8fafc;
       border: 1px solid #e5e7eb;
       border-radius: 14px;
       padding: 14px;
     }
-    .detail-box.full { grid-column: 1 / -1; }
+
+    .detail-box.full {
+      grid-column: 1 / -1;
+    }
+
     .detail-label {
       font-size: 12px;
       color: #6b7280;
@@ -104,6 +138,7 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
+
     .detail-value {
       font-size: 15px;
       color: #111827;
@@ -111,7 +146,11 @@
       white-space: pre-wrap;
       line-height: 1.5;
     }
-    .field-group { margin-bottom: 16px; }
+
+    .field-group {
+      margin-bottom: 16px;
+    }
+
     label {
       display: block;
       margin-bottom: 7px;
@@ -119,6 +158,7 @@
       color: #1f2937;
       font-size: 14px;
     }
+
     input, select, textarea {
       width: 100%;
       border: 1px solid #d1d5db;
@@ -129,17 +169,24 @@
       background: white;
       font-family: Arial, sans-serif;
     }
+
     input:focus, select:focus, textarea:focus {
       border-color: #2563eb;
       box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
     }
-    textarea { min-height: 110px; resize: vertical; }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
     .btn-row {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
       margin-top: 10px;
     }
+
     .btn {
       border: none;
       border-radius: 12px;
@@ -148,19 +195,30 @@
       font-size: 14px;
       cursor: pointer;
     }
+
     .btn.primary { background: #2563eb; color: white; }
     .btn.secondary { background: #e5edff; color: #1d4ed8; }
     .btn.success { background: #16a34a; color: white; }
     .btn.warning { background: #92400e; color: white; }
     .btn.danger { background: #dc2626; color: white; }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .list { display: grid; gap: 12px; }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
     .list-item {
       border: 1px solid #e5e7eb;
       border-radius: 14px;
       padding: 16px;
       background: #fafafa;
     }
+
     .list-item-top {
       display: flex;
       justify-content: space-between;
@@ -169,6 +227,26 @@
       flex-wrap: wrap;
       margin-bottom: 8px;
     }
+
+    .search-results {
+      display: grid;
+      gap: 12px;
+    }
+
+    .search-result-item {
+      border: 1px solid #e5e7eb;
+      background: #fafafa;
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .search-result-item:hover {
+      border-color: #2563eb;
+      background: #f8fbff;
+    }
+
     .pill {
       display: inline-block;
       padding: 6px 10px;
@@ -178,16 +256,22 @@
       background: #e5edff;
       color: #1d4ed8;
     }
+
     .pill.warning { background: #fef3c7; color: #92400e; }
     .pill.success { background: #dcfce7; color: #166534; }
     .pill.danger { background: #fee2e2; color: #991b1b; }
-    .hidden { display: none !important; }
+
+    .hidden {
+      display: none !important;
+    }
+
     .small-note {
       margin-top: 10px;
       color: #6b7280;
       font-size: 13px;
       line-height: 1.5;
     }
+
     .link-box {
       margin-top: 12px;
       padding: 12px;
@@ -197,11 +281,13 @@
       word-break: break-all;
       font-size: 14px;
     }
+
     .empty-state {
       color: #6b7280;
       font-size: 14px;
       padding: 8px 0;
     }
+
     .danger-box {
       border: 1px solid #fecaca;
       background: #fff1f2;
@@ -209,6 +295,7 @@
       padding: 16px;
       margin-top: 8px;
     }
+
     .loading-screen {
       min-height: 100vh;
       display: flex;
@@ -220,9 +307,17 @@
       font-size: 18px;
       font-weight: 700;
     }
+
     @media (max-width: 900px) {
-      .grid, .detail-grid { grid-template-columns: 1fr; }
-      .container { padding: 16px; }
+      .grid,
+      .detail-grid,
+      .search-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 16px;
+      }
     }
   </style>
 </head>
@@ -245,8 +340,33 @@
       <div id="messageBox" class="message"></div>
 
       <div class="card">
-        <h2>Find Employee</h2>
-        <p class="card-subtitle">Search by Employee ID to view the employee record, signup status, write-ups, and appeals.</p>
+        <h2>Search Employees</h2>
+        <p class="card-subtitle">Search by Employee ID, username, or email, then click a result to load the full employee record.</p>
+
+        <div class="search-grid">
+          <div class="field-group">
+            <label for="employeeSearchInput">Search</label>
+            <input
+              type="text"
+              id="employeeSearchInput"
+              maxlength="120"
+              placeholder="Employee ID, username, or email"
+            />
+          </div>
+
+          <div class="field-group">
+            <label>&nbsp;</label>
+            <button id="searchEmployeesBtn" class="btn secondary" style="width:100%;">Search Employees</button>
+          </div>
+        </div>
+
+        <div id="searchResults" class="search-results"></div>
+        <div id="searchResultsEmpty" class="empty-state">Search results will appear here.</div>
+      </div>
+
+      <div class="card">
+        <h2>Load by Exact Employee ID</h2>
+        <p class="card-subtitle">Load a specific employee record directly if you already know the Employee ID.</p>
         <div class="grid">
           <div class="field-group">
             <label for="employeeLookup">Employee ID</label>
@@ -274,58 +394,6 @@
             <div class="detail-box"><div class="detail-label">Login Enabled</div><div id="empLoginEnabled" class="detail-value">—</div></div>
             <div class="detail-box"><div class="detail-label">Account Created</div><div id="empAccountCreated" class="detail-value">—</div></div>
           </div>
-        </div>
-
-        <div class="card">
-          <h2>Edit Employee Profile</h2>
-          <p class="card-subtitle">Update the selected employee's core profile and access information.</p>
-          <div class="grid">
-            <div class="field-group">
-              <label for="editUsername">Username</label>
-              <input type="text" id="editUsername" maxlength="50" />
-            </div>
-            <div class="field-group">
-              <label for="editEmail">Email</label>
-              <input type="email" id="editEmail" maxlength="120" />
-            </div>
-            <div class="field-group">
-              <label for="editPosition">Position</label>
-              <input type="text" id="editPosition" maxlength="80" />
-            </div>
-            <div class="field-group">
-              <label for="editRole">Role</label>
-              <select id="editRole">
-                <option value="Employee">Employee</option>
-                <option value="Manager">Manager</option>
-                <option value="Admin">Admin</option>
-                <option value="Owner">Owner</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label for="editDepartmentId">Department ID</label>
-              <input type="text" id="editDepartmentId" maxlength="40" />
-            </div>
-            <div class="field-group">
-              <label for="editDepartmentName">Department Name</label>
-              <input type="text" id="editDepartmentName" maxlength="80" />
-            </div>
-            <div class="field-group">
-              <label for="editManagerEmail">Manager Email</label>
-              <input type="email" id="editManagerEmail" maxlength="120" />
-            </div>
-            <div class="field-group">
-              <label for="editStatus">Status</label>
-              <select id="editStatus">
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-          </div>
-          <div class="btn-row">
-            <button id="saveProfileBtn" class="btn primary">Save Profile Changes</button>
-            <button id="disableAccountBtn" class="btn warning">Disable Account</button>
-          </div>
-          <div class="small-note">Disabling the account sets the employee status to inactive and turns off portal login.</div>
         </div>
 
         <div class="card">
@@ -365,21 +433,6 @@
           <div id="appealsList" class="list"></div>
           <div id="appealsEmpty" class="empty-state">No appeals found.</div>
         </div>
-
-        <div class="card">
-          <h2>Delete Account</h2>
-          <p class="card-subtitle">This permanently removes the employee record and linked portal documents. To continue, type the exact Employee ID below.</p>
-          <div class="danger-box">
-            <div class="field-group">
-              <label for="deleteConfirmEmployeeId">Confirm Employee ID</label>
-              <input type="text" id="deleteConfirmEmployeeId" maxlength="30" placeholder="Type the Employee ID exactly" />
-            </div>
-            <div class="btn-row">
-              <button id="deleteAccountBtn" class="btn danger">Delete Account</button>
-            </div>
-            <div class="small-note">This removes the employee document, matching signup request records, and matching portal user documents. It may not remove an existing Firebase Authentication login account created outside this page.</div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -392,7 +445,6 @@
       doc,
       getDoc,
       updateDoc,
-      deleteDoc,
       collection,
       getDocs,
       addDoc,
@@ -425,27 +477,21 @@
 
     const dashboardBtn = document.getElementById("dashboardBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+
+    const employeeSearchInput = document.getElementById("employeeSearchInput");
+    const searchEmployeesBtn = document.getElementById("searchEmployeesBtn");
+    const searchResults = document.getElementById("searchResults");
+    const searchResultsEmpty = document.getElementById("searchResultsEmpty");
+
     const loadEmployeeBtn = document.getElementById("loadEmployeeBtn");
     const employeeLookup = document.getElementById("employeeLookup");
+
     const manualApprovalNote = document.getElementById("manualApprovalNote");
     const approveSignupBtn = document.getElementById("approveSignupBtn");
     const sendPasswordLinkBtn = document.getElementById("sendPasswordLinkBtn");
     const copyPasswordLinkBtn = document.getElementById("copyPasswordLinkBtn");
     const openPasswordLinkBtn = document.getElementById("openPasswordLinkBtn");
     const passwordLinkBox = document.getElementById("passwordLinkBox");
-    const saveProfileBtn = document.getElementById("saveProfileBtn");
-    const disableAccountBtn = document.getElementById("disableAccountBtn");
-    const deleteAccountBtn = document.getElementById("deleteAccountBtn");
-    const deleteConfirmEmployeeId = document.getElementById("deleteConfirmEmployeeId");
-
-    const editUsername = document.getElementById("editUsername");
-    const editEmail = document.getElementById("editEmail");
-    const editPosition = document.getElementById("editPosition");
-    const editRole = document.getElementById("editRole");
-    const editDepartmentId = document.getElementById("editDepartmentId");
-    const editDepartmentName = document.getElementById("editDepartmentName");
-    const editManagerEmail = document.getElementById("editManagerEmail");
-    const editStatus = document.getElementById("editStatus");
 
     const signupRequestDetails = document.getElementById("signupRequestDetails");
     const signupRequestEmpty = document.getElementById("signupRequestEmpty");
@@ -499,7 +545,7 @@
     function getPillClass(status) {
       const value = normalizeRole(status);
       if (value === "approved" || value === "reviewed" || value === "completed" || value === "active") return "pill success";
-      if (value === "denied" || value === "overturned" || value === "reduced" || value === "inactive") return "pill danger";
+      if (value === "denied" || value === "overturned" || value === "reduced") return "pill danger";
       if (value === "pending") return "pill warning";
       return "pill";
     }
@@ -517,6 +563,32 @@
       listEl.appendChild(item);
     }
 
+    function clearSearchResults() {
+      searchResults.innerHTML = "";
+      searchResultsEmpty.style.display = "block";
+    }
+
+    function appendSearchResult(employeeId, data) {
+      searchResultsEmpty.style.display = "none";
+      const item = document.createElement("div");
+      item.className = "search-result-item";
+      item.innerHTML = `
+        <div class="list-item-top">
+          <div><strong>${data.username || "Unknown User"}</strong></div>
+          <span class="${getPillClass(data.status || "active")}">${data.status || "active"}</span>
+        </div>
+        <div><strong>Employee ID:</strong> ${employeeId}</div>
+        <div><strong>Email:</strong> ${data.email || "—"}</div>
+        <div><strong>Department:</strong> ${data.departmentName || data.departmentId || "—"}</div>
+        <div><strong>Role:</strong> ${data.role || data.position || "—"}</div>
+      `;
+      item.addEventListener("click", () => {
+        employeeLookup.value = employeeId;
+        handleLoadEmployee();
+      });
+      searchResults.appendChild(item);
+    }
+
     function setEmployeeDetails(employeeData) {
       document.getElementById("empUsername").textContent = employeeData.username || "—";
       document.getElementById("empEmployeeId").textContent = employeeData.employeeId || "—";
@@ -527,29 +599,6 @@
       document.getElementById("empSignupApproved").textContent = boolText(employeeData.signupApproved);
       document.getElementById("empLoginEnabled").textContent = boolText(employeeData.loginEnabled);
       document.getElementById("empAccountCreated").textContent = boolText(employeeData.accountCreated);
-    }
-
-    function populateEditForm(employeeData) {
-      editUsername.value = employeeData.username || "";
-      editEmail.value = employeeData.email || "";
-      editPosition.value = employeeData.position || "";
-      editRole.value = employeeData.role || "Employee";
-      editDepartmentId.value = employeeData.departmentId || "";
-      editDepartmentName.value = employeeData.departmentName || "";
-      editManagerEmail.value = employeeData.managerEmail || "";
-      editStatus.value = (employeeData.status || "active").toLowerCase();
-    }
-
-    function clearEmployeeState() {
-      selectedEmployee = null;
-      selectedSignupRequest = null;
-      currentPasswordLink = "";
-      employeeSection.classList.add("hidden");
-      signupRequestDetails.innerHTML = "";
-      writeupsList.innerHTML = "";
-      appealsList.innerHTML = "";
-      renderPasswordLink("");
-      deleteConfirmEmployeeId.value = "";
     }
 
     function renderSignupRequest(requestDoc) {
@@ -615,6 +664,7 @@
       if (!hasManagementAccess(userData)) {
         showMessage("You do not have permission to manage employees.", "error");
         loadEmployeeBtn.disabled = true;
+        searchEmployeesBtn.disabled = true;
       }
 
       return userData;
@@ -671,30 +721,11 @@
       }
     }
 
-    async function refreshSelectedEmployee(employeeId) {
-      const employeeRef = doc(db, "employees", employeeId);
-      const employeeSnap = await getDoc(employeeRef);
-      if (!employeeSnap.exists()) {
-        clearEmployeeState();
-        throw new Error("The employee record no longer exists.");
-      }
-      const employeeData = employeeSnap.data();
-      employeeData.employeeId = employeeData.employeeId || employeeId;
-      selectedEmployee = { id: employeeId, data: employeeData };
-      setEmployeeDetails(employeeData);
-      populateEditForm(employeeData);
-      selectedSignupRequest = await findLatestSignupRequest(employeeId);
-      renderSignupRequest(selectedSignupRequest);
-      await Promise.all([
-        loadWriteupsForEmployee(employeeId),
-        loadAppealsForEmployee(employeeId)
-      ]);
-    }
-
     async function handleLoadEmployee() {
       clearMessage();
       renderPasswordLink("");
       const employeeId = normalizeText(employeeLookup.value);
+
       if (!employeeId) {
         showMessage("Please enter an Employee ID.", "error");
         return;
@@ -708,7 +739,7 @@
         const employeeSnap = await getDoc(employeeRef);
 
         if (!employeeSnap.exists()) {
-          clearEmployeeState();
+          employeeSection.classList.add("hidden");
           throw new Error("No employee was found with that Employee ID.");
         }
 
@@ -717,14 +748,13 @@
 
         if (!canCrossDepartments(currentPortalUser)) {
           if (normalizeText(employeeData.departmentId).toLowerCase() !== normalizeText(currentPortalUser.departmentId).toLowerCase()) {
-            clearEmployeeState();
+            employeeSection.classList.add("hidden");
             throw new Error("Managers may only manage employees in their own department.");
           }
         }
 
         selectedEmployee = { id: employeeId, data: employeeData };
         setEmployeeDetails(employeeData);
-        populateEditForm(employeeData);
         selectedSignupRequest = await findLatestSignupRequest(employeeId);
         renderSignupRequest(selectedSignupRequest);
         await Promise.all([
@@ -732,7 +762,6 @@
           loadAppealsForEmployee(employeeId)
         ]);
         employeeSection.classList.remove("hidden");
-        deleteConfirmEmployeeId.value = "";
         showMessage("Employee loaded successfully.", "success");
       } catch (error) {
         console.error(error);
@@ -740,6 +769,61 @@
       } finally {
         loadEmployeeBtn.disabled = false;
         loadEmployeeBtn.textContent = "Load Employee";
+      }
+    }
+
+    async function handleEmployeeSearch() {
+      clearMessage();
+      clearSearchResults();
+
+      const searchValue = normalizeText(employeeSearchInput.value).toLowerCase();
+      if (!searchValue) {
+        searchResultsEmpty.textContent = "Enter a username, email, or Employee ID to search.";
+        searchResultsEmpty.style.display = "block";
+        return;
+      }
+
+      searchEmployeesBtn.disabled = true;
+      searchEmployeesBtn.textContent = "Searching...";
+
+      try {
+        const snap = await getDocs(collection(db, "employees"));
+        let matches = 0;
+
+        snap.forEach((docSnap) => {
+          const data = docSnap.data();
+          const employeeId = docSnap.id;
+
+          if (!canCrossDepartments(currentPortalUser)) {
+            if (normalizeText(data.departmentId).toLowerCase() !== normalizeText(currentPortalUser.departmentId).toLowerCase()) {
+              return;
+            }
+          }
+
+          const username = normalizeText(data.username).toLowerCase();
+          const email = normalizeText(data.email).toLowerCase();
+          const docEmployeeId = normalizeText(data.employeeId || employeeId).toLowerCase();
+
+          if (
+            docEmployeeId.includes(searchValue) ||
+            username.includes(searchValue) ||
+            email.includes(searchValue)
+          ) {
+            matches += 1;
+            appendSearchResult(employeeId, data);
+          }
+        });
+
+        if (matches === 0) {
+          searchResultsEmpty.textContent = "No matching employees were found.";
+          searchResultsEmpty.style.display = "block";
+        }
+      } catch (error) {
+        console.error(error);
+        showMessage("An unexpected error occurred while searching employees.", "error");
+      } finally {
+        searchEmployeesBtn.disabled = false;
+        searchEmployeesBtn.textContent = "Search Employees";
       }
     }
 
@@ -838,149 +922,6 @@
       }
     }
 
-    async function saveEmployeeProfile() {
-      if (!selectedEmployee) throw new Error("Load an employee first.");
-
-      const employeeId = selectedEmployee.id;
-      const updated = {
-        username: normalizeText(editUsername.value),
-        email: normalizeEmail(editEmail.value),
-        position: normalizeText(editPosition.value),
-        role: normalizeText(editRole.value),
-        departmentId: normalizeText(editDepartmentId.value),
-        departmentName: normalizeText(editDepartmentName.value),
-        managerEmail: normalizeEmail(editManagerEmail.value),
-        status: normalizeText(editStatus.value).toLowerCase(),
-        lastUpdated: serverTimestamp()
-      };
-
-      if (!updated.username || !updated.email || !updated.departmentId || !updated.departmentName || !updated.role || !updated.status) {
-        throw new Error("Please complete all required profile fields before saving.");
-      }
-
-      if (!canCrossDepartments(currentPortalUser)) {
-        if (updated.departmentId.toLowerCase() !== normalizeText(currentPortalUser.departmentId).toLowerCase()) {
-          throw new Error("Managers may only move employees within their own department.");
-        }
-      }
-
-      await updateDoc(doc(db, "employees", employeeId), updated);
-
-      const userDocs = await getDocs(query(collection(db, "users"), where("employeeId", "==", employeeId), limit(10)));
-      for (const userDoc of userDocs.docs) {
-        await updateDoc(doc(db, "users", userDoc.id), {
-          username: updated.username,
-          email: updated.email,
-          departmentId: updated.departmentId,
-          departmentName: updated.departmentName,
-          role: updated.role,
-          status: updated.status,
-          lastUpdated: serverTimestamp()
-        });
-      }
-
-      selectedEmployee.data = { ...selectedEmployee.data, ...updated };
-      setEmployeeDetails(selectedEmployee.data);
-      selectedSignupRequest = await findLatestSignupRequest(employeeId);
-      renderSignupRequest(selectedSignupRequest);
-    }
-
-    async function disableEmployeeAccount() {
-      if (!selectedEmployee) throw new Error("Load an employee first.");
-      const employeeId = selectedEmployee.id;
-
-      await updateDoc(doc(db, "employees", employeeId), {
-        status: "inactive",
-        loginEnabled: false,
-        lastUpdated: serverTimestamp()
-      });
-
-      const userDocs = await getDocs(query(collection(db, "users"), where("employeeId", "==", employeeId), limit(10)));
-      for (const userDoc of userDocs.docs) {
-        await updateDoc(doc(db, "users", userDoc.id), {
-          status: "inactive",
-          lastUpdated: serverTimestamp()
-        });
-      }
-
-      selectedEmployee.data.status = "inactive";
-      selectedEmployee.data.loginEnabled = false;
-      setEmployeeDetails(selectedEmployee.data);
-      editStatus.value = "inactive";
-    }
-
-    async function deleteEmployeeAccount() {
-      if (!selectedEmployee) throw new Error("Load an employee first.");
-      const employeeId = selectedEmployee.id;
-      const typed = normalizeText(deleteConfirmEmployeeId.value);
-
-      if (typed !== employeeId) {
-        throw new Error("You must type the exact Employee ID to delete this account.");
-      }
-
-      const signupDocs = await getDocs(query(collection(db, "signupRequests"), where("employeeId", "==", employeeId), limit(50)));
-      for (const signupDoc of signupDocs.docs) {
-        await deleteDoc(doc(db, "signupRequests", signupDoc.id));
-      }
-
-      const userDocs = await getDocs(query(collection(db, "users"), where("employeeId", "==", employeeId), limit(20)));
-      for (const userDoc of userDocs.docs) {
-        await deleteDoc(doc(db, "users", userDoc.id));
-      }
-
-      await deleteDoc(doc(db, "employees", employeeId));
-      clearEmployeeState();
-      employeeLookup.value = "";
-      showMessage("Employee portal records deleted successfully.", "success");
-    }
-
-    saveProfileBtn.addEventListener("click", async () => {
-      clearMessage();
-      saveProfileBtn.disabled = true;
-      saveProfileBtn.textContent = "Saving...";
-      try {
-        await saveEmployeeProfile();
-        showMessage("Employee profile updated successfully.", "success");
-      } catch (error) {
-        console.error(error);
-        showMessage(error.message || "Could not save employee profile.", "error");
-      } finally {
-        saveProfileBtn.disabled = false;
-        saveProfileBtn.textContent = "Save Profile Changes";
-      }
-    });
-
-    disableAccountBtn.addEventListener("click", async () => {
-      clearMessage();
-      disableAccountBtn.disabled = true;
-      disableAccountBtn.textContent = "Disabling...";
-      try {
-        await disableEmployeeAccount();
-        showMessage("Employee account disabled successfully.", "success");
-      } catch (error) {
-        console.error(error);
-        showMessage(error.message || "Could not disable the account.", "error");
-      } finally {
-        disableAccountBtn.disabled = false;
-        disableAccountBtn.textContent = "Disable Account";
-      }
-    });
-
-    deleteAccountBtn.addEventListener("click", async () => {
-      clearMessage();
-      deleteAccountBtn.disabled = true;
-      deleteAccountBtn.textContent = "Deleting...";
-      try {
-        await deleteEmployeeAccount();
-      } catch (error) {
-        console.error(error);
-        showMessage(error.message || "Could not delete the account.", "error");
-      } finally {
-        deleteAccountBtn.disabled = false;
-        deleteAccountBtn.textContent = "Delete Account";
-      }
-    });
-
     approveSignupBtn.addEventListener("click", async () => {
       clearMessage();
       approveSignupBtn.disabled = true;
@@ -1050,6 +991,14 @@
       if (event.key === "Enter") {
         event.preventDefault();
         handleLoadEmployee();
+      }
+    });
+
+    searchEmployeesBtn.addEventListener("click", handleEmployeeSearch);
+    employeeSearchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleEmployeeSearch();
       }
     });
 
