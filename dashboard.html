@@ -449,7 +449,6 @@
       getDocs,
       query,
       where,
-      orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -605,28 +604,36 @@
         snap.forEach((docSnap) => {
           const data = docSnap.data();
           const status = data.status || "active";
+
           appendListItem(
-            appendListItem(
-  writeupsList,
-  writeupsEmpty,
-  `
-    <div class="list-item-top">
-      <div><strong>${data.category || "Write-Up"}</strong></div>
-      <span class="${getPillClass(status)}">${status}</span>
-    </div>
-    <div><strong>Reason:</strong> ${data.reason || "No reason provided."}</div>
-    <div><strong>Issued By:</strong> ${data.issuedByUsername || data.issuedBy || "Unknown"}</div>
-    <div style="margin-top:10px;">
-      <button
-        class="action-btn secondary open-appeal-btn"
-        data-writeup-id="${docSnap.id}"
-        style="width:auto;padding:10px 14px;"
-      >
-        View / Appeal
-      </button>
-    </div>
-  `
-);
+            writeupsList,
+            writeupsEmpty,
+            `
+              <div class="list-item-top">
+                <div><strong>${data.category || "Write-Up"}</strong></div>
+                <span class="${getPillClass(status)}">${status}</span>
+              </div>
+              <div><strong>Reason:</strong> ${data.reason || "No reason provided."}</div>
+              <div><strong>Issued By:</strong> ${data.issuedByUsername || data.issuedBy || "Unknown"}</div>
+              <div style="margin-top:10px;">
+                <button
+                  class="action-btn secondary open-appeal-btn"
+                  data-writeup-id="${docSnap.id}"
+                  style="width:auto;padding:10px 14px;"
+                >
+                  View / Appeal
+                </button>
+              </div>
+            `
+          );
+        });
+
+        const appealButtons = writeupsList.querySelectorAll(".open-appeal-btn");
+        appealButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const writeupId = button.getAttribute("data-writeup-id");
+            window.location.href = `appeal-writeup.html?id=${encodeURIComponent(writeupId)}`;
+          });
         });
       } catch (error) {
         console.error("Write-ups load error:", error);
@@ -737,22 +744,31 @@
       setVisibility(manageSignupsBtn, canManageSignups(userData));
     }
 
-   async function loadDashboard(user, userData) {
-  currentUserData = userData;
-  clearMessage();
-  setProfile(userData);
-  applyRoleView(userData);
+    async function loadDashboard(user, userData) {
+      currentUserData = userData;
+      clearMessage();
+      setProfile(userData);
+      applyRoleView(userData);
 
-  await Promise.all([
-    loadMyWriteups(userData),
-    loadMyAppeals(userData),
-    loadManagerAppeals(userData),
-    loadPendingSignups(userData)
-  ]);
+      loadingScreen.classList.add("hidden");
+      appEl.classList.remove("hidden");
 
-  loadingScreen.classList.add("hidden");
-  appEl.classList.remove("hidden");
-}
+      loadMyWriteups(userData).catch((error) => {
+        console.error("loadMyWriteups failed:", error);
+      });
+
+      loadMyAppeals(userData).catch((error) => {
+        console.error("loadMyAppeals failed:", error);
+      });
+
+      loadManagerAppeals(userData).catch((error) => {
+        console.error("loadManagerAppeals failed:", error);
+      });
+
+      loadPendingSignups(userData).catch((error) => {
+        console.error("loadPendingSignups failed:", error);
+      });
+    }
 
     async function initializeDashboard(user) {
       try {
@@ -805,9 +821,9 @@
       showMessage("The appeal form page will be connected next.", "success");
     });
 
-issueWriteupBtn.addEventListener("click", () => {
-  window.location.href = "issue-writeup.html";
-});
+    issueWriteupBtn.addEventListener("click", () => {
+      window.location.href = "issue-writeup.html";
+    });
 
     reviewAppealsBtn.addEventListener("click", () => {
       document.getElementById("appealsList").scrollIntoView({ behavior: "smooth" });
@@ -817,19 +833,19 @@ issueWriteupBtn.addEventListener("click", () => {
       document.getElementById("signupsList").scrollIntoView({ behavior: "smooth" });
     });
 
-   onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "login.html";
-    return;
-  }
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
 
-  try {
-    await initializeDashboard(user);
-  } catch (error) {
-    console.error("Dashboard auth error:", error);
-    loadingScreen.textContent = "Failed to load dashboard.";
-  }
-});
+      try {
+        await initializeDashboard(user);
+      } catch (error) {
+        console.error("Dashboard auth error:", error);
+        loadingScreen.textContent = "Failed to load dashboard.";
+      }
+    });
   </script>
 </body>
 </html>
