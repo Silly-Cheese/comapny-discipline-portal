@@ -404,6 +404,7 @@
             <button id="issueWriteupBtn" class="action-btn hidden">Issue Write-Up</button>
             <button id="reviewAppealsBtn" class="action-btn hidden">Review Appeals</button>
             <button id="manageSignupsBtn" class="action-btn hidden">Manage Signups</button>
+            <button id="addEmployeeBtn" class="action-btn hidden">Add Employee</button>
           </div>
         </div>
 
@@ -499,6 +500,7 @@
     const issueWriteupBtn = document.getElementById("issueWriteupBtn");
     const reviewAppealsBtn = document.getElementById("reviewAppealsBtn");
     const manageSignupsBtn = document.getElementById("manageSignupsBtn");
+    const addEmployeeBtn = document.getElementById("addEmployeeBtn");
 
     const viewMyWriteupsBtn = document.getElementById("viewMyWriteupsBtn");
     const submitAppealBtn = document.getElementById("submitAppealBtn");
@@ -538,6 +540,11 @@
 
     function canManageSignups(userData) {
       return hasManagerAccess(userData);
+    }
+
+    function canAddEmployees(userData) {
+      const role = normalizeRole(userData.role);
+      return role === "manager" || role === "admin" || role === "owner" || role === "administrator";
     }
 
     function getPillClass(status) {
@@ -742,6 +749,7 @@
       setVisibility(issueWriteupBtn, canIssueWriteups(userData));
       setVisibility(reviewAppealsBtn, canReviewAppeals(userData));
       setVisibility(manageSignupsBtn, canManageSignups(userData));
+      setVisibility(addEmployeeBtn, canAddEmployees(userData));
     }
 
     async function loadDashboard(user, userData) {
@@ -831,6 +839,10 @@
 
     manageSignupsBtn.addEventListener("click", () => {
       document.getElementById("signupsList").scrollIntoView({ behavior: "smooth" });
+    });
+
+    addEmployeeBtn.addEventListener("click", () => {
+      window.location.href = "add-employee.html";
     });
 
     onAuthStateChanged(auth, async (user) => {
