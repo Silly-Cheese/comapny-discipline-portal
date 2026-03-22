@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Signups</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #111827;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: white;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .topbar p {
+      margin: 6px 0 0;
+      color: #dbeafe;
+      font-size: 14px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .topbar-btn {
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .topbar-btn.primary {
+      background: white;
+      color: #1d4ed8;
+    }
+
+    .topbar-btn.secondary {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .message {
+      display: none;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .card-subtitle {
+      margin: 0 0 20px;
+      color: #6b7280;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .request-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .request-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 18px;
+      background: #fafafa;
+    }
+
+    .request-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .request-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e5edff;
+      color: #1d4ed8;
+    }
+
+    .pill.warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .pill.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .pill.danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .detail-box {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .detail-label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 5px;
+    }
+
+    .detail-value {
+      font-size: 14px;
+      color: #111827;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      font-family: Arial, sans-serif;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      min-height: 90px;
+      resize: vertical;
+      margin-top: 10px;
+    }
+
+    textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn.success {
+      background: #16a34a;
+      color: white;
+    }
+
+    .btn.danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .empty-state {
+      color: #6b7280;
+      font-size: 14px;
+      padding: 6px 0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .loading-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #f3f6fb;
+      color: #374151;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 760px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingScreen" class="loading-screen">Loading signup requests...</div>
+
+  <div id="app" class="hidden">
+    <div class="topbar">
+      <div>
+        <h1>Manage Signups</h1>
+        <p>Approve or deny employee signup requests from inside the portal.</p>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="dashboardBtn" class="topbar-btn secondary">Back to Dashboard</button>
+        <button id="logoutBtn" class="topbar-btn primary">Log Out</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="messageBox" class="message"></div>
+
+      <div class="card">
+        <h2>Pending Requests</h2>
+        <p class="card-subtitle">
+          Managers may approve requests in their own department. Owners and admins may approve across departments.
+        </p>
+
+        <div id="requestList" class="request-list"></div>
+        <div id="emptyState" class="empty-state">No pending signup requests were found.</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      getDocs,
+      query,
+      where,
+      updateDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDE0nhogdC9LHPEhSlUF1AqnXmwPU64cXg",
+      authDomain: "company-discipline-portal.firebaseapp.com",
+      projectId: "company-discipline-portal",
+      storageBucket: "company-discipline-portal.firebasestorage.app",
+      messagingSenderId: "991390225414",
+      appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
+    };
+
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx66XksoJLgvQyoGQkRBPDLUeNnedrGB5kDS4jVtONTNyD5L5DflUuBCJvGyrFjUvfgYQ/exec";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const appEl = document.getElementById("app");
+    const messageBox = document.getElementById("messageBox");
+    const dashboardBtn = document.getElementById("dashboardBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const requestList = document.getElementById("requestList");
+    const emptyState = document.getElementById("emptyState");
+
+    let currentPortalUser = null;
+
+    function showMessage(text, type) {
+      messageBox.textContent = text;
+      messageBox.className = `message ${type}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearMessage() {
+      messageBox.textContent = "";
+      messageBox.className = "message";
+    }
+
+    function normalizeRole(role) {
+      return (role || "").toLowerCase();
+    }
+
+    function hasSignupAccess(userData) {
+      const role = normalizeRole(userData.role);
+      return role === "manager" || role === "admin" || role === "owner" || role === "administrator";
+    }
+
+    function canCrossDepartments(userData) {
+      const role = normalizeRole(userData.role);
+      return role === "admin" || role === "owner" || role === "administrator";
+    }
+
+    function getPillClass(status) {
+      const value = (status || "").toLowerCase();
+
+      if (value === "approved" || value === "completed") {
+        return "pill success";
+      }
+
+      if (value === "denied") {
+        return "pill danger";
+      }
+
+      if (value === "pending") {
+        return "pill warning";
+      }
+
+      return "pill";
+    }
+
+    async function loadPortalUser(firebaseUser) {
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      const userData = userSnap.data();
+
+      if ((userData.status || "").toLowerCase() !== "active") {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      if (!hasSignupAccess(userData)) {
+        showMessage("You do not have permission to manage signup requests.", "error");
+      }
+
+      return userData;
+    }
+
+    async function sendPasswordSetupEmail(requestId, employeeId, email, username) {
+      if (!APPS_SCRIPT_URL) return;
+
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify({
+          action: "sendPasswordSetup",
+          requestId,
+          employeeId,
+          email,
+          username
+        })
+      });
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || "Password setup email could not be sent.");
+      }
+    }
+
+    function createRequestCard(docId, data) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "request-item";
+      wrapper.innerHTML = `
+        <div class="request-top">
+          <div class="request-title">${data.username || "Employee"}</div>
+          <span class="${getPillClass(data.status || "pending")}">${data.status || "pending"}</span>
+        </div>
+
+        <div class="detail-grid">
+          <div class="detail-box">
+            <div class="detail-label">Employee ID</div>
+            <div class="detail-value">${data.employeeId || "—"}</div>
+          </div>
+
+          <div class="detail-box">
+            <div class="detail-label">Department</div>
+            <div class="detail-value">${data.departmentName || "—"}</div>
+          </div>
+
+          <div class="detail-box">
+            <div class="detail-label">Email</div>
+            <div class="detail-value">${data.email || "—"}</div>
+          </div>
+
+          <div class="detail-box">
+            <div class="detail-label">Role</div>
+            <div class="detail-value">${data.role || "—"}</div>
+          </div>
+        </div>
+
+        <textarea id="deny-reason-${docId}" placeholder="Optional denial reason"></textarea>
+
+        <div class="btn-row">
+          <button class="btn success approve-btn" data-id="${docId}">Approve</button>
+          <button class="btn danger deny-btn" data-id="${docId}">Deny</button>
+        </div>
+      `;
+
+      return wrapper;
+    }
+
+    async function loadRequests() {
+      requestList.innerHTML = "";
+      emptyState.style.display = "block";
+      clearMessage();
+
+      if (!currentPortalUser || !hasSignupAccess(currentPortalUser)) {
+        return;
+      }
+
+      try {
+        let signupQuery;
+
+        if (canCrossDepartments(currentPortalUser)) {
+          signupQuery = query(
+            collection(db, "signupRequests"),
+            where("status", "==", "pending")
+          );
+        } else {
+          signupQuery = query(
+            collection(db, "signupRequests"),
+            where("departmentId", "==", currentPortalUser.departmentId),
+            where("status", "==", "pending")
+          );
+        }
+
+        const snap = await getDocs(signupQuery);
+
+        if (snap.empty) {
+          emptyState.style.display = "block";
+          return;
+        }
+
+        emptyState.style.display = "none";
+
+        snap.forEach((docSnap) => {
+          const card = createRequestCard(docSnap.id, docSnap.data());
+          requestList.appendChild(card);
+        });
+
+        requestList.querySelectorAll(".approve-btn").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const requestId = button.getAttribute("data-id");
+            await approveRequest(requestId, button);
+          });
+        });
+
+        requestList.querySelectorAll(".deny-btn").forEach((button) => {
+          button.addEventListener("click", async () => {
+            const requestId = button.getAttribute("data-id");
+            await denyRequest(requestId, button);
+          });
+        });
+      } catch (error) {
+        console.error("Signup load error:", error);
+        showMessage("An unexpected error occurred while loading signup requests.", "error");
+      }
+    }
+
+    async function approveRequest(requestId, button) {
+      clearMessage();
+      button.disabled = true;
+      button.textContent = "Approving...";
+
+      try {
+        const requestRef = doc(db, "signupRequests", requestId);
+        const requestSnap = await getDoc(requestRef);
+
+        if (!requestSnap.exists()) {
+          throw new Error("The selected signup request no longer exists.");
+        }
+
+        const requestData = requestSnap.data();
+        const employeeId = requestData.employeeId;
+
+        await updateDoc(requestRef, {
+          status: "approved",
+          approvedBy: currentPortalUser.uid || "",
+          approvedByUsername: currentPortalUser.username || "",
+          approvedAt: serverTimestamp(),
+          deniedBy: null,
+          deniedAt: null,
+          denialReason: null
+        });
+
+        if (employeeId) {
+          const employeeRef = doc(db, "employees", employeeId);
+          const employeeSnap = await getDoc(employeeRef);
+
+          if (employeeSnap.exists()) {
+            await updateDoc(employeeRef, {
+              signupApproved: true,
+              loginEnabled: true,
+              lastUpdated: serverTimestamp()
+            });
+          }
+        }
+
+        await sendPasswordSetupEmail(
+          requestId,
+          requestData.employeeId || "",
+          requestData.email || "",
+          requestData.username || ""
+        );
+
+        showMessage("Signup request approved and password setup email sent.", "success");
+        await loadRequests();
+      } catch (error) {
+        console.error("Approve request error:", error);
+        showMessage(error.message || "An unexpected error occurred while approving the request.", "error");
+      } finally {
+        button.disabled = false;
+        button.textContent = "Approve";
+      }
+    }
+
+    async function denyRequest(requestId, button) {
+      clearMessage();
+      button.disabled = true;
+      button.textContent = "Denying...";
+
+      try {
+        const reasonInput = document.getElementById(`deny-reason-${requestId}`);
+        const denialReason = (reasonInput?.value || "").trim() || "Denied by management.";
+
+        const requestRef = doc(db, "signupRequests", requestId);
+        const requestSnap = await getDoc(requestRef);
+
+        if (!requestSnap.exists()) {
+          throw new Error("The selected signup request no longer exists.");
+        }
+
+        await updateDoc(requestRef, {
+          status: "denied",
+          deniedBy: currentPortalUser.uid || "",
+          deniedByUsername: currentPortalUser.username || "",
+          deniedAt: serverTimestamp(),
+          denialReason: denialReason,
+          approvedBy: null,
+          approvedAt: null
+        });
+
+        showMessage("Signup request denied successfully.", "success");
+        await loadRequests();
+      } catch (error) {
+        console.error("Deny request error:", error);
+        showMessage(error.message || "An unexpected error occurred while denying the request.", "error");
+      } finally {
+        button.disabled = false;
+        button.textContent = "Deny";
+      }
+    }
+
+    dashboardBtn.addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Logout error:", error);
+        showMessage("Could not log out right now.", "error");
+      }
+    });
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        currentPortalUser = await loadPortalUser(firebaseUser);
+
+        if (!currentPortalUser) {
+          return;
+        }
+
+        loadingScreen.classList.add("hidden");
+        appEl.classList.remove("hidden");
+        await loadRequests();
+      } catch (error) {
+        console.error("Initialization error:", error);
+        loadingScreen.textContent = "Failed to load signup requests.";
+      }
+    });
+  </script>
+</body>
+</html>
