@@ -152,6 +152,7 @@
     .btn.secondary { background: #e5edff; color: #1d4ed8; }
     .btn.success { background: #16a34a; color: white; }
     .btn.warning { background: #92400e; color: white; }
+    .btn.danger { background: #dc2626; color: white; }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .list { display: grid; gap: 12px; }
     .list-item {
@@ -201,6 +202,13 @@
       font-size: 14px;
       padding: 8px 0;
     }
+    .danger-box {
+      border: 1px solid #fecaca;
+      background: #fff1f2;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 8px;
+    }
     .loading-screen {
       min-height: 100vh;
       display: flex;
@@ -225,7 +233,7 @@
     <div class="topbar">
       <div>
         <h1>Employee Management</h1>
-        <p>Search employees, review account status, and manually approve signup access.</p>
+        <p>Search employees, review account status, and manage portal access.</p>
       </div>
       <div class="topbar-actions">
         <button id="dashboardBtn" class="topbar-btn secondary">Back to Dashboard</button>
@@ -269,6 +277,58 @@
         </div>
 
         <div class="card">
+          <h2>Edit Employee Profile</h2>
+          <p class="card-subtitle">Update the selected employee's core profile and access information.</p>
+          <div class="grid">
+            <div class="field-group">
+              <label for="editUsername">Username</label>
+              <input type="text" id="editUsername" maxlength="50" />
+            </div>
+            <div class="field-group">
+              <label for="editEmail">Email</label>
+              <input type="email" id="editEmail" maxlength="120" />
+            </div>
+            <div class="field-group">
+              <label for="editPosition">Position</label>
+              <input type="text" id="editPosition" maxlength="80" />
+            </div>
+            <div class="field-group">
+              <label for="editRole">Role</label>
+              <select id="editRole">
+                <option value="Employee">Employee</option>
+                <option value="Manager">Manager</option>
+                <option value="Admin">Admin</option>
+                <option value="Owner">Owner</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label for="editDepartmentId">Department ID</label>
+              <input type="text" id="editDepartmentId" maxlength="40" />
+            </div>
+            <div class="field-group">
+              <label for="editDepartmentName">Department Name</label>
+              <input type="text" id="editDepartmentName" maxlength="80" />
+            </div>
+            <div class="field-group">
+              <label for="editManagerEmail">Manager Email</label>
+              <input type="email" id="editManagerEmail" maxlength="120" />
+            </div>
+            <div class="field-group">
+              <label for="editStatus">Status</label>
+              <select id="editStatus">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="saveProfileBtn" class="btn primary">Save Profile Changes</button>
+            <button id="disableAccountBtn" class="btn warning">Disable Account</button>
+          </div>
+          <div class="small-note">Disabling the account sets the employee status to inactive and turns off portal login.</div>
+        </div>
+
+        <div class="card">
           <h2>Manual Approval</h2>
           <p class="card-subtitle">Approve the employee for portal access without using the normal email approval flow. This updates Firestore and generates a password setup link you can open or send.</p>
           <div class="field-group">
@@ -305,6 +365,21 @@
           <div id="appealsList" class="list"></div>
           <div id="appealsEmpty" class="empty-state">No appeals found.</div>
         </div>
+
+        <div class="card">
+          <h2>Delete Account</h2>
+          <p class="card-subtitle">This permanently removes the employee record and linked portal documents. To continue, type the exact Employee ID below.</p>
+          <div class="danger-box">
+            <div class="field-group">
+              <label for="deleteConfirmEmployeeId">Confirm Employee ID</label>
+              <input type="text" id="deleteConfirmEmployeeId" maxlength="30" placeholder="Type the Employee ID exactly" />
+            </div>
+            <div class="btn-row">
+              <button id="deleteAccountBtn" class="btn danger">Delete Account</button>
+            </div>
+            <div class="small-note">This removes the employee document, matching signup request records, and matching portal user documents. It may not remove an existing Firebase Authentication login account created outside this page.</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -316,14 +391,13 @@
       getFirestore,
       doc,
       getDoc,
-      setDoc,
       updateDoc,
+      deleteDoc,
       collection,
       getDocs,
       addDoc,
       query,
       where,
-      orderBy,
       limit,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -359,6 +433,19 @@
     const copyPasswordLinkBtn = document.getElementById("copyPasswordLinkBtn");
     const openPasswordLinkBtn = document.getElementById("openPasswordLinkBtn");
     const passwordLinkBox = document.getElementById("passwordLinkBox");
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    const disableAccountBtn = document.getElementById("disableAccountBtn");
+    const deleteAccountBtn = document.getElementById("deleteAccountBtn");
+    const deleteConfirmEmployeeId = document.getElementById("deleteConfirmEmployeeId");
+
+    const editUsername = document.getElementById("editUsername");
+    const editEmail = document.getElementById("editEmail");
+    const editPosition = document.getElementById("editPosition");
+    const editRole = document.getElementById("editRole");
+    const editDepartmentId = document.getElementById("editDepartmentId");
+    const editDepartmentName = document.getElementById("editDepartmentName");
+    const editManagerEmail = document.getElementById("editManagerEmail");
+    const editStatus = document.getElementById("editStatus");
 
     const signupRequestDetails = document.getElementById("signupRequestDetails");
     const signupRequestEmpty = document.getElementById("signupRequestEmpty");
@@ -412,7 +499,7 @@
     function getPillClass(status) {
       const value = normalizeRole(status);
       if (value === "approved" || value === "reviewed" || value === "completed" || value === "active") return "pill success";
-      if (value === "denied" || value === "overturned" || value === "reduced") return "pill danger";
+      if (value === "denied" || value === "overturned" || value === "reduced" || value === "inactive") return "pill danger";
       if (value === "pending") return "pill warning";
       return "pill";
     }
@@ -440,6 +527,29 @@
       document.getElementById("empSignupApproved").textContent = boolText(employeeData.signupApproved);
       document.getElementById("empLoginEnabled").textContent = boolText(employeeData.loginEnabled);
       document.getElementById("empAccountCreated").textContent = boolText(employeeData.accountCreated);
+    }
+
+    function populateEditForm(employeeData) {
+      editUsername.value = employeeData.username || "";
+      editEmail.value = employeeData.email || "";
+      editPosition.value = employeeData.position || "";
+      editRole.value = employeeData.role || "Employee";
+      editDepartmentId.value = employeeData.departmentId || "";
+      editDepartmentName.value = employeeData.departmentName || "";
+      editManagerEmail.value = employeeData.managerEmail || "";
+      editStatus.value = (employeeData.status || "active").toLowerCase();
+    }
+
+    function clearEmployeeState() {
+      selectedEmployee = null;
+      selectedSignupRequest = null;
+      currentPasswordLink = "";
+      employeeSection.classList.add("hidden");
+      signupRequestDetails.innerHTML = "";
+      writeupsList.innerHTML = "";
+      appealsList.innerHTML = "";
+      renderPasswordLink("");
+      deleteConfirmEmployeeId.value = "";
     }
 
     function renderSignupRequest(requestDoc) {
@@ -561,6 +671,26 @@
       }
     }
 
+    async function refreshSelectedEmployee(employeeId) {
+      const employeeRef = doc(db, "employees", employeeId);
+      const employeeSnap = await getDoc(employeeRef);
+      if (!employeeSnap.exists()) {
+        clearEmployeeState();
+        throw new Error("The employee record no longer exists.");
+      }
+      const employeeData = employeeSnap.data();
+      employeeData.employeeId = employeeData.employeeId || employeeId;
+      selectedEmployee = { id: employeeId, data: employeeData };
+      setEmployeeDetails(employeeData);
+      populateEditForm(employeeData);
+      selectedSignupRequest = await findLatestSignupRequest(employeeId);
+      renderSignupRequest(selectedSignupRequest);
+      await Promise.all([
+        loadWriteupsForEmployee(employeeId),
+        loadAppealsForEmployee(employeeId)
+      ]);
+    }
+
     async function handleLoadEmployee() {
       clearMessage();
       renderPasswordLink("");
@@ -578,7 +708,7 @@
         const employeeSnap = await getDoc(employeeRef);
 
         if (!employeeSnap.exists()) {
-          employeeSection.classList.add("hidden");
+          clearEmployeeState();
           throw new Error("No employee was found with that Employee ID.");
         }
 
@@ -587,13 +717,14 @@
 
         if (!canCrossDepartments(currentPortalUser)) {
           if (normalizeText(employeeData.departmentId).toLowerCase() !== normalizeText(currentPortalUser.departmentId).toLowerCase()) {
-            employeeSection.classList.add("hidden");
+            clearEmployeeState();
             throw new Error("Managers may only manage employees in their own department.");
           }
         }
 
         selectedEmployee = { id: employeeId, data: employeeData };
         setEmployeeDetails(employeeData);
+        populateEditForm(employeeData);
         selectedSignupRequest = await findLatestSignupRequest(employeeId);
         renderSignupRequest(selectedSignupRequest);
         await Promise.all([
@@ -601,6 +732,7 @@
           loadAppealsForEmployee(employeeId)
         ]);
         employeeSection.classList.remove("hidden");
+        deleteConfirmEmployeeId.value = "";
         showMessage("Employee loaded successfully.", "success");
       } catch (error) {
         console.error(error);
@@ -706,12 +838,155 @@
       }
     }
 
+    async function saveEmployeeProfile() {
+      if (!selectedEmployee) throw new Error("Load an employee first.");
+
+      const employeeId = selectedEmployee.id;
+      const updated = {
+        username: normalizeText(editUsername.value),
+        email: normalizeEmail(editEmail.value),
+        position: normalizeText(editPosition.value),
+        role: normalizeText(editRole.value),
+        departmentId: normalizeText(editDepartmentId.value),
+        departmentName: normalizeText(editDepartmentName.value),
+        managerEmail: normalizeEmail(editManagerEmail.value),
+        status: normalizeText(editStatus.value).toLowerCase(),
+        lastUpdated: serverTimestamp()
+      };
+
+      if (!updated.username || !updated.email || !updated.departmentId || !updated.departmentName || !updated.role || !updated.status) {
+        throw new Error("Please complete all required profile fields before saving.");
+      }
+
+      if (!canCrossDepartments(currentPortalUser)) {
+        if (updated.departmentId.toLowerCase() !== normalizeText(currentPortalUser.departmentId).toLowerCase()) {
+          throw new Error("Managers may only move employees within their own department.");
+        }
+      }
+
+      await updateDoc(doc(db, "employees", employeeId), updated);
+
+      const userDocs = await getDocs(query(collection(db, "users"), where("employeeId", "==", employeeId), limit(10)));
+      for (const userDoc of userDocs.docs) {
+        await updateDoc(doc(db, "users", userDoc.id), {
+          username: updated.username,
+          email: updated.email,
+          departmentId: updated.departmentId,
+          departmentName: updated.departmentName,
+          role: updated.role,
+          status: updated.status,
+          lastUpdated: serverTimestamp()
+        });
+      }
+
+      selectedEmployee.data = { ...selectedEmployee.data, ...updated };
+      setEmployeeDetails(selectedEmployee.data);
+      selectedSignupRequest = await findLatestSignupRequest(employeeId);
+      renderSignupRequest(selectedSignupRequest);
+    }
+
+    async function disableEmployeeAccount() {
+      if (!selectedEmployee) throw new Error("Load an employee first.");
+      const employeeId = selectedEmployee.id;
+
+      await updateDoc(doc(db, "employees", employeeId), {
+        status: "inactive",
+        loginEnabled: false,
+        lastUpdated: serverTimestamp()
+      });
+
+      const userDocs = await getDocs(query(collection(db, "users"), where("employeeId", "==", employeeId), limit(10)));
+      for (const userDoc of userDocs.docs) {
+        await updateDoc(doc(db, "users", userDoc.id), {
+          status: "inactive",
+          lastUpdated: serverTimestamp()
+        });
+      }
+
+      selectedEmployee.data.status = "inactive";
+      selectedEmployee.data.loginEnabled = false;
+      setEmployeeDetails(selectedEmployee.data);
+      editStatus.value = "inactive";
+    }
+
+    async function deleteEmployeeAccount() {
+      if (!selectedEmployee) throw new Error("Load an employee first.");
+      const employeeId = selectedEmployee.id;
+      const typed = normalizeText(deleteConfirmEmployeeId.value);
+
+      if (typed !== employeeId) {
+        throw new Error("You must type the exact Employee ID to delete this account.");
+      }
+
+      const signupDocs = await getDocs(query(collection(db, "signupRequests"), where("employeeId", "==", employeeId), limit(50)));
+      for (const signupDoc of signupDocs.docs) {
+        await deleteDoc(doc(db, "signupRequests", signupDoc.id));
+      }
+
+      const userDocs = await getDocs(query(collection(db, "users"), where("employeeId", "==", employeeId), limit(20)));
+      for (const userDoc of userDocs.docs) {
+        await deleteDoc(doc(db, "users", userDoc.id));
+      }
+
+      await deleteDoc(doc(db, "employees", employeeId));
+      clearEmployeeState();
+      employeeLookup.value = "";
+      showMessage("Employee portal records deleted successfully.", "success");
+    }
+
+    saveProfileBtn.addEventListener("click", async () => {
+      clearMessage();
+      saveProfileBtn.disabled = true;
+      saveProfileBtn.textContent = "Saving...";
+      try {
+        await saveEmployeeProfile();
+        showMessage("Employee profile updated successfully.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Could not save employee profile.", "error");
+      } finally {
+        saveProfileBtn.disabled = false;
+        saveProfileBtn.textContent = "Save Profile Changes";
+      }
+    });
+
+    disableAccountBtn.addEventListener("click", async () => {
+      clearMessage();
+      disableAccountBtn.disabled = true;
+      disableAccountBtn.textContent = "Disabling...";
+      try {
+        await disableEmployeeAccount();
+        showMessage("Employee account disabled successfully.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Could not disable the account.", "error");
+      } finally {
+        disableAccountBtn.disabled = false;
+        disableAccountBtn.textContent = "Disable Account";
+      }
+    });
+
+    deleteAccountBtn.addEventListener("click", async () => {
+      clearMessage();
+      deleteAccountBtn.disabled = true;
+      deleteAccountBtn.textContent = "Deleting...";
+      try {
+        await deleteEmployeeAccount();
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Could not delete the account.", "error");
+      } finally {
+        deleteAccountBtn.disabled = false;
+        deleteAccountBtn.textContent = "Delete Account";
+      }
+    });
+
     approveSignupBtn.addEventListener("click", async () => {
       clearMessage();
       approveSignupBtn.disabled = true;
       approveSignupBtn.textContent = "Approving...";
       try {
-        const result = await upsertManualApprovalRequest();
+        await upsertManualApprovalRequest();
         showMessage("Signup manually approved. The password setup link is ready below.", "success");
       } catch (error) {
         console.error(error);
