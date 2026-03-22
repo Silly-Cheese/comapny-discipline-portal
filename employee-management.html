@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Management</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #111827;
+    }
+    .topbar {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: white;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .topbar h1 { margin: 0; font-size: 26px; }
+    .topbar p { margin: 6px 0 0; color: #dbeafe; font-size: 14px; }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .topbar-btn {
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .topbar-btn.primary { background: white; color: #1d4ed8; }
+    .topbar-btn.secondary {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .container {
+      max-width: 1150px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+    .card-subtitle {
+      margin: 0 0 20px;
+      color: #6b7280;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .message {
+      display: none;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .detail-box {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .detail-box.full { grid-column: 1 / -1; }
+    .detail-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .detail-value {
+      font-size: 15px;
+      color: #111827;
+      word-break: break-word;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+    .field-group { margin-bottom: 16px; }
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 14px;
+    }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      font-family: Arial, sans-serif;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn.primary { background: #2563eb; color: white; }
+    .btn.secondary { background: #e5edff; color: #1d4ed8; }
+    .btn.success { background: #16a34a; color: white; }
+    .btn.warning { background: #92400e; color: white; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .list { display: grid; gap: 12px; }
+    .list-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
+      background: #fafafa;
+    }
+    .list-item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e5edff;
+      color: #1d4ed8;
+    }
+    .pill.warning { background: #fef3c7; color: #92400e; }
+    .pill.success { background: #dcfce7; color: #166534; }
+    .pill.danger { background: #fee2e2; color: #991b1b; }
+    .hidden { display: none !important; }
+    .small-note {
+      margin-top: 10px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .link-box {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      word-break: break-all;
+      font-size: 14px;
+    }
+    .empty-state {
+      color: #6b7280;
+      font-size: 14px;
+      padding: 8px 0;
+    }
+    .loading-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #f3f6fb;
+      color: #374151;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    @media (max-width: 900px) {
+      .grid, .detail-grid { grid-template-columns: 1fr; }
+      .container { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingScreen" class="loading-screen">Loading employee management...</div>
+
+  <div id="app" class="hidden">
+    <div class="topbar">
+      <div>
+        <h1>Employee Management</h1>
+        <p>Search employees, review account status, and manually approve signup access.</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="dashboardBtn" class="topbar-btn secondary">Back to Dashboard</button>
+        <button id="logoutBtn" class="topbar-btn primary">Log Out</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="messageBox" class="message"></div>
+
+      <div class="card">
+        <h2>Find Employee</h2>
+        <p class="card-subtitle">Search by Employee ID to view the employee record, signup status, write-ups, and appeals.</p>
+        <div class="grid">
+          <div class="field-group">
+            <label for="employeeLookup">Employee ID</label>
+            <input type="text" id="employeeLookup" maxlength="30" placeholder="Enter Employee ID" />
+          </div>
+          <div class="field-group">
+            <label>&nbsp;</label>
+            <button id="loadEmployeeBtn" class="btn secondary" style="width:100%;">Load Employee</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="employeeSection" class="hidden">
+        <div class="card">
+          <h2>Employee Record</h2>
+          <p class="card-subtitle">Core account and department details for the selected employee.</p>
+          <div class="detail-grid">
+            <div class="detail-box"><div class="detail-label">Username</div><div id="empUsername" class="detail-value">—</div></div>
+            <div class="detail-box"><div class="detail-label">Employee ID</div><div id="empEmployeeId" class="detail-value">—</div></div>
+            <div class="detail-box"><div class="detail-label">Email</div><div id="empEmail" class="detail-value">—</div></div>
+            <div class="detail-box"><div class="detail-label">Department</div><div id="empDepartment" class="detail-value">—</div></div>
+            <div class="detail-box"><div class="detail-label">Role</div><div id="empRole" class="detail-value">—</div></div>
+            <div class="detail-box"><div class="detail-label">Status</div><div id="empStatus" class="detail-value">—</div></div>
+            <div class="detail-box"><div class="detail-label">Signup Approved</div><div id="empSignupApproved" class="detail-value">—</div></div>
+            <div class="detail-box"><div class="detail-label">Login Enabled</div><div id="empLoginEnabled" class="detail-value">—</div></div>
+            <div class="detail-box"><div class="detail-label">Account Created</div><div id="empAccountCreated" class="detail-value">—</div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Manual Approval</h2>
+          <p class="card-subtitle">Approve the employee for portal access without using the normal email approval flow. This updates Firestore and generates a password setup link you can open or send.</p>
+          <div class="field-group">
+            <label for="manualApprovalNote">Approval Note</label>
+            <textarea id="manualApprovalNote" placeholder="Optional internal note for this manual approval."></textarea>
+          </div>
+          <div class="btn-row">
+            <button id="approveSignupBtn" class="btn success">APPROVE SIGNUP REQUEST</button>
+            <button id="sendPasswordLinkBtn" class="btn primary">Send Password Email</button>
+            <button id="copyPasswordLinkBtn" class="btn secondary">Copy Link</button>
+            <a id="openPasswordLinkBtn" class="btn secondary hidden" href="#" target="_blank" rel="noopener noreferrer" style="text-decoration:none;display:inline-flex;align-items:center;">Open Link</a>
+          </div>
+          <div id="passwordLinkBox" class="link-box hidden"></div>
+          <div class="small-note">Manual approval will create or update a signup request record if needed, mark the employee approved, and enable login. It does not create the Firebase Auth user automatically; the employee still uses the password setup page.</div>
+        </div>
+
+        <div class="card">
+          <h2>Signup Request Record</h2>
+          <p class="card-subtitle">Most recent signup request tied to this employee, if one exists.</p>
+          <div id="signupRequestDetails" class="detail-grid"></div>
+          <div id="signupRequestEmpty" class="empty-state">No signup request found for this employee.</div>
+        </div>
+
+        <div class="card">
+          <h2>Write-Ups</h2>
+          <p class="card-subtitle">Recent disciplinary records for this employee.</p>
+          <div id="writeupsList" class="list"></div>
+          <div id="writeupsEmpty" class="empty-state">No write-ups found.</div>
+        </div>
+
+        <div class="card">
+          <h2>Appeals</h2>
+          <p class="card-subtitle">Recent appeal activity for this employee.</p>
+          <div id="appealsList" class="list"></div>
+          <div id="appealsEmpty" class="empty-state">No appeals found.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      collection,
+      getDocs,
+      addDoc,
+      query,
+      where,
+      orderBy,
+      limit,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDE0nhogdC9LHPEhSlUF1AqnXmwPU64cXg",
+      authDomain: "company-discipline-portal.firebaseapp.com",
+      projectId: "company-discipline-portal",
+      storageBucket: "company-discipline-portal.firebasestorage.app",
+      messagingSenderId: "991390225414",
+      appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
+    };
+
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx66XksoJLgvQyoGQkRBPDLUeNnedrGB5kDS4jVtONTNyD5L5DflUuBCJvGyrFjUvfgYQ/exec";
+    const PASSWORD_SETUP_BASE_URL = "https://silly-cheese.github.io/comapny-discipline-portal/create-password.html";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const appEl = document.getElementById("app");
+    const messageBox = document.getElementById("messageBox");
+    const employeeSection = document.getElementById("employeeSection");
+
+    const dashboardBtn = document.getElementById("dashboardBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const loadEmployeeBtn = document.getElementById("loadEmployeeBtn");
+    const employeeLookup = document.getElementById("employeeLookup");
+    const manualApprovalNote = document.getElementById("manualApprovalNote");
+    const approveSignupBtn = document.getElementById("approveSignupBtn");
+    const sendPasswordLinkBtn = document.getElementById("sendPasswordLinkBtn");
+    const copyPasswordLinkBtn = document.getElementById("copyPasswordLinkBtn");
+    const openPasswordLinkBtn = document.getElementById("openPasswordLinkBtn");
+    const passwordLinkBox = document.getElementById("passwordLinkBox");
+
+    const signupRequestDetails = document.getElementById("signupRequestDetails");
+    const signupRequestEmpty = document.getElementById("signupRequestEmpty");
+    const writeupsList = document.getElementById("writeupsList");
+    const writeupsEmpty = document.getElementById("writeupsEmpty");
+    const appealsList = document.getElementById("appealsList");
+    const appealsEmpty = document.getElementById("appealsEmpty");
+
+    let currentPortalUser = null;
+    let selectedEmployee = null;
+    let selectedSignupRequest = null;
+    let currentPasswordLink = "";
+
+    function showMessage(text, type) {
+      messageBox.textContent = text;
+      messageBox.className = `message ${type}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearMessage() {
+      messageBox.textContent = "";
+      messageBox.className = "message";
+    }
+
+    function normalizeText(value) {
+      return String(value || "").trim();
+    }
+
+    function normalizeEmail(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function normalizeRole(role) {
+      return normalizeText(role).toLowerCase();
+    }
+
+    function boolText(value) {
+      return value === true ? "Yes" : "No";
+    }
+
+    function hasManagementAccess(userData) {
+      const role = normalizeRole(userData.role);
+      return role === "manager" || role === "admin" || role === "owner" || role === "administrator";
+    }
+
+    function canCrossDepartments(userData) {
+      const role = normalizeRole(userData.role);
+      return role === "admin" || role === "owner" || role === "administrator";
+    }
+
+    function getPillClass(status) {
+      const value = normalizeRole(status);
+      if (value === "approved" || value === "reviewed" || value === "completed" || value === "active") return "pill success";
+      if (value === "denied" || value === "overturned" || value === "reduced") return "pill danger";
+      if (value === "pending") return "pill warning";
+      return "pill";
+    }
+
+    function clearList(listEl, emptyEl) {
+      listEl.innerHTML = "";
+      emptyEl.style.display = "block";
+    }
+
+    function appendListItem(listEl, emptyEl, html) {
+      emptyEl.style.display = "none";
+      const item = document.createElement("div");
+      item.className = "list-item";
+      item.innerHTML = html;
+      listEl.appendChild(item);
+    }
+
+    function setEmployeeDetails(employeeData) {
+      document.getElementById("empUsername").textContent = employeeData.username || "—";
+      document.getElementById("empEmployeeId").textContent = employeeData.employeeId || "—";
+      document.getElementById("empEmail").textContent = employeeData.email || "—";
+      document.getElementById("empDepartment").textContent = employeeData.departmentName || employeeData.departmentId || "—";
+      document.getElementById("empRole").textContent = employeeData.role || employeeData.position || "—";
+      document.getElementById("empStatus").textContent = employeeData.status || "—";
+      document.getElementById("empSignupApproved").textContent = boolText(employeeData.signupApproved);
+      document.getElementById("empLoginEnabled").textContent = boolText(employeeData.loginEnabled);
+      document.getElementById("empAccountCreated").textContent = boolText(employeeData.accountCreated);
+    }
+
+    function renderSignupRequest(requestDoc) {
+      signupRequestDetails.innerHTML = "";
+      if (!requestDoc) {
+        signupRequestEmpty.style.display = "block";
+        return;
+      }
+
+      signupRequestEmpty.style.display = "none";
+      const data = requestDoc.data();
+      const entries = [
+        ["Request ID", requestDoc.id],
+        ["Status", data.status || "—"],
+        ["Username", data.username || "—"],
+        ["Email", data.email || "—"],
+        ["Approved By", data.approvedByUsername || data.approvedBy || "—"],
+        ["Denied By", data.deniedByUsername || data.deniedBy || "—"],
+        ["Password Setup Sent", boolText(data.passwordSetupSent)],
+        ["Account Created", boolText(data.accountCreated)]
+      ];
+
+      entries.forEach(([label, value]) => {
+        const box = document.createElement("div");
+        box.className = "detail-box";
+        box.innerHTML = `<div class="detail-label">${label}</div><div class="detail-value">${value}</div>`;
+        signupRequestDetails.appendChild(box);
+      });
+    }
+
+    function renderPasswordLink(link) {
+      currentPasswordLink = link || "";
+      if (!link) {
+        passwordLinkBox.classList.add("hidden");
+        openPasswordLinkBtn.classList.add("hidden");
+        openPasswordLinkBtn.href = "#";
+        passwordLinkBox.textContent = "";
+        return;
+      }
+      passwordLinkBox.textContent = link;
+      passwordLinkBox.classList.remove("hidden");
+      openPasswordLinkBtn.href = link;
+      openPasswordLinkBtn.classList.remove("hidden");
+    }
+
+    async function loadPortalUser(firebaseUser) {
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      const userData = userSnap.data();
+      if (normalizeRole(userData.status) !== "active") {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      if (!hasManagementAccess(userData)) {
+        showMessage("You do not have permission to manage employees.", "error");
+        loadEmployeeBtn.disabled = true;
+      }
+
+      return userData;
+    }
+
+    async function findLatestSignupRequest(employeeId) {
+      const q = query(collection(db, "signupRequests"), where("employeeId", "==", employeeId), limit(25));
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      return snap.docs[0];
+    }
+
+    async function loadWriteupsForEmployee(employeeId) {
+      clearList(writeupsList, writeupsEmpty);
+      try {
+        const q = query(collection(db, "writeUps"), where("employeeId", "==", employeeId), limit(20));
+        const snap = await getDocs(q);
+        snap.forEach((docSnap) => {
+          const data = docSnap.data();
+          appendListItem(writeupsList, writeupsEmpty, `
+            <div class="list-item-top">
+              <div><strong>${data.category || "Write-Up"}</strong></div>
+              <span class="${getPillClass(data.status || "active")}">${data.status || "active"}</span>
+            </div>
+            <div><strong>Severity:</strong> ${data.severity || "—"}</div>
+            <div><strong>Reason:</strong> ${data.reason || "No reason provided."}</div>
+            <div><strong>Issued By:</strong> ${data.issuedByUsername || data.issuedBy || "Unknown"}</div>
+          `);
+        });
+      } catch (error) {
+        console.error("Writeup load error:", error);
+      }
+    }
+
+    async function loadAppealsForEmployee(employeeId) {
+      clearList(appealsList, appealsEmpty);
+      try {
+        const q = query(collection(db, "appeals"), where("employeeId", "==", employeeId), limit(20));
+        const snap = await getDocs(q);
+        snap.forEach((docSnap) => {
+          const data = docSnap.data();
+          appendListItem(appealsList, appealsEmpty, `
+            <div class="list-item-top">
+              <div><strong>Appeal</strong></div>
+              <span class="${getPillClass(data.status || "pending")}">${data.status || "pending"}</span>
+            </div>
+            <div><strong>Write-Up ID:</strong> ${data.writeUpId || "—"}</div>
+            <div><strong>Reason:</strong> ${data.appealReason || "No reason provided."}</div>
+            <div><strong>Decision:</strong> ${data.decision || "—"}</div>
+          `);
+        });
+      } catch (error) {
+        console.error("Appeal load error:", error);
+      }
+    }
+
+    async function handleLoadEmployee() {
+      clearMessage();
+      renderPasswordLink("");
+      const employeeId = normalizeText(employeeLookup.value);
+      if (!employeeId) {
+        showMessage("Please enter an Employee ID.", "error");
+        return;
+      }
+
+      loadEmployeeBtn.disabled = true;
+      loadEmployeeBtn.textContent = "Loading...";
+
+      try {
+        const employeeRef = doc(db, "employees", employeeId);
+        const employeeSnap = await getDoc(employeeRef);
+
+        if (!employeeSnap.exists()) {
+          employeeSection.classList.add("hidden");
+          throw new Error("No employee was found with that Employee ID.");
+        }
+
+        const employeeData = employeeSnap.data();
+        employeeData.employeeId = employeeData.employeeId || employeeId;
+
+        if (!canCrossDepartments(currentPortalUser)) {
+          if (normalizeText(employeeData.departmentId).toLowerCase() !== normalizeText(currentPortalUser.departmentId).toLowerCase()) {
+            employeeSection.classList.add("hidden");
+            throw new Error("Managers may only manage employees in their own department.");
+          }
+        }
+
+        selectedEmployee = { id: employeeId, data: employeeData };
+        setEmployeeDetails(employeeData);
+        selectedSignupRequest = await findLatestSignupRequest(employeeId);
+        renderSignupRequest(selectedSignupRequest);
+        await Promise.all([
+          loadWriteupsForEmployee(employeeId),
+          loadAppealsForEmployee(employeeId)
+        ]);
+        employeeSection.classList.remove("hidden");
+        showMessage("Employee loaded successfully.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "An unexpected error occurred while loading the employee.", "error");
+      } finally {
+        loadEmployeeBtn.disabled = false;
+        loadEmployeeBtn.textContent = "Load Employee";
+      }
+    }
+
+    async function upsertManualApprovalRequest() {
+      if (!selectedEmployee) throw new Error("Load an employee first.");
+
+      const employeeId = selectedEmployee.id;
+      const employeeData = selectedEmployee.data;
+      const note = normalizeText(manualApprovalNote.value);
+      const email = normalizeEmail(employeeData.email || "");
+      const username = normalizeText(employeeData.username || "");
+
+      if (!email) throw new Error("This employee does not have an email address in their record.");
+      if (!username) throw new Error("This employee does not have a username in their record.");
+
+      let requestId = selectedSignupRequest?.id || "";
+
+      if (selectedSignupRequest) {
+        const requestRef = doc(db, "signupRequests", requestId);
+        await updateDoc(requestRef, {
+          status: "approved",
+          approvedBy: currentPortalUser.uid || "",
+          approvedByUsername: currentPortalUser.username || "",
+          approvedAt: serverTimestamp(),
+          denialReason: null,
+          deniedBy: null,
+          deniedAt: null,
+          passwordSetupSent: false,
+          manualApprovalNote: note || null
+        });
+      } else {
+        const added = await addDoc(collection(db, "signupRequests"), {
+          employeeId,
+          username,
+          email,
+          departmentId: employeeData.departmentId || "",
+          departmentName: employeeData.departmentName || "",
+          role: employeeData.role || employeeData.position || "Employee",
+          managerEmail: employeeData.managerEmail || currentPortalUser.email || "",
+          status: "approved",
+          verified: true,
+          accountCreated: false,
+          passwordSetupSent: false,
+          approvedBy: currentPortalUser.uid || "",
+          approvedByUsername: currentPortalUser.username || "",
+          approvedAt: serverTimestamp(),
+          deniedBy: null,
+          deniedAt: null,
+          denialReason: null,
+          manualApprovalNote: note || null,
+          submittedAt: serverTimestamp(),
+          createdManually: true
+        });
+        requestId = added.id;
+      }
+
+      await updateDoc(doc(db, "employees", employeeId), {
+        signupApproved: true,
+        loginEnabled: true,
+        status: employeeData.status || "active",
+        lastUpdated: serverTimestamp()
+      });
+
+      const link = `${PASSWORD_SETUP_BASE_URL}?requestId=${encodeURIComponent(requestId)}&employeeId=${encodeURIComponent(employeeId)}`;
+      selectedEmployee.data.signupApproved = true;
+      selectedEmployee.data.loginEnabled = true;
+      setEmployeeDetails(selectedEmployee.data);
+      selectedSignupRequest = await findLatestSignupRequest(employeeId);
+      renderSignupRequest(selectedSignupRequest);
+      renderPasswordLink(link);
+      return { requestId, link, email, username, employeeId };
+    }
+
+    async function sendPasswordSetup(requestId, employeeId, email, username) {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          action: "sendPasswordSetup",
+          requestId,
+          employeeId,
+          email,
+          username
+        })
+      });
+
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.message || "Password setup email could not be sent.");
+      }
+
+      if (requestId) {
+        await updateDoc(doc(db, "signupRequests", requestId), {
+          passwordSetupSent: true
+        });
+      }
+    }
+
+    approveSignupBtn.addEventListener("click", async () => {
+      clearMessage();
+      approveSignupBtn.disabled = true;
+      approveSignupBtn.textContent = "Approving...";
+      try {
+        const result = await upsertManualApprovalRequest();
+        showMessage("Signup manually approved. The password setup link is ready below.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Manual approval failed.", "error");
+      } finally {
+        approveSignupBtn.disabled = false;
+        approveSignupBtn.textContent = "APPROVE SIGNUP REQUEST";
+      }
+    });
+
+    sendPasswordLinkBtn.addEventListener("click", async () => {
+      clearMessage();
+      sendPasswordLinkBtn.disabled = true;
+      sendPasswordLinkBtn.textContent = "Sending...";
+      try {
+        const result = await upsertManualApprovalRequest();
+        await sendPasswordSetup(result.requestId, result.employeeId, result.email, result.username);
+        selectedSignupRequest = await findLatestSignupRequest(result.employeeId);
+        renderSignupRequest(selectedSignupRequest);
+        showMessage("Password setup email sent successfully.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Password email could not be sent.", "error");
+      } finally {
+        sendPasswordLinkBtn.disabled = false;
+        sendPasswordLinkBtn.textContent = "Send Password Email";
+      }
+    });
+
+    copyPasswordLinkBtn.addEventListener("click", async () => {
+      clearMessage();
+      try {
+        if (!currentPasswordLink) {
+          const result = await upsertManualApprovalRequest();
+          renderPasswordLink(result.link);
+        }
+        await navigator.clipboard.writeText(currentPasswordLink);
+        showMessage("Password setup link copied.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Could not copy the password link.", "error");
+      }
+    });
+
+    dashboardBtn.addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error(error);
+        showMessage("Could not log out right now.", "error");
+      }
+    });
+
+    loadEmployeeBtn.addEventListener("click", handleLoadEmployee);
+    employeeLookup.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        handleLoadEmployee();
+      }
+    });
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        currentPortalUser = await loadPortalUser(firebaseUser);
+        if (!currentPortalUser) return;
+        loadingScreen.classList.add("hidden");
+        appEl.classList.remove("hidden");
+      } catch (error) {
+        console.error(error);
+        loadingScreen.textContent = "Failed to load employee management.";
+      }
+    });
+  </script>
+</body>
+</html>
