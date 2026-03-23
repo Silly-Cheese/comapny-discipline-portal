@@ -266,7 +266,8 @@
       display: none !important;
     }
 
-    .loading-screen {
+    .loading-screen,
+    .maintenance-screen {
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -276,6 +277,95 @@
       color: #374151;
       font-size: 18px;
       font-weight: 700;
+    }
+
+    .loading-box,
+    .maintenance-box {
+      width: 100%;
+      max-width: 620px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+      padding: 34px 28px;
+      text-align: center;
+    }
+
+    .loading-box h2,
+    .maintenance-box h1 {
+      margin: 0 0 12px;
+      color: #111827;
+    }
+
+    .loading-box p,
+    .maintenance-box p {
+      margin: 0;
+      color: #6b7280;
+      line-height: 1.7;
+    }
+
+    .maintenance-box h1 {
+      font-size: 38px;
+    }
+
+    .maintenance-status {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #475569;
+    }
+
+    .unlock-panel {
+      margin-top: 24px;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .unlock-panel h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #111827;
+    }
+
+    .unlock-panel p {
+      margin: 0 0 14px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .field-group {
+      margin-bottom: 14px;
+    }
+
+    .field-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 14px;
+    }
+
+    .field-group input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .field-group input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .unlock-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     @media (max-width: 900px) {
@@ -305,11 +395,50 @@
       .topbar {
         padding: 16px;
       }
+
+      .loading-box,
+      .maintenance-box {
+        padding: 24px 20px;
+      }
+
+      .maintenance-box h1 {
+        font-size: 30px;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="loadingScreen" class="loading-screen">Loading dashboard...</div>
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>Loading Dashboard</h2>
+      <p>Please wait while the portal checks your account and system availability.</p>
+    </div>
+  </div>
+
+  <div id="maintenanceScreen" class="maintenance-screen hidden">
+    <div class="maintenance-box">
+      <h1 id="maintenanceTitle">Under Construction</h1>
+      <p id="maintenanceText">This portal is currently unavailable while maintenance is being performed.</p>
+      <div class="maintenance-status" id="maintenanceStatusText">Please check back later.</div>
+
+      <div id="unlockPanel" class="unlock-panel hidden">
+        <h3>Admin / Owner Unlock</h3>
+        <p>Enter the unlock code to temporarily bypass maintenance mode on this device.</p>
+
+        <div id="unlockMessage" class="message"></div>
+
+        <div class="field-group">
+          <label for="unlockCodeInput">Unlock Code</label>
+          <input type="password" id="unlockCodeInput" maxlength="100" placeholder="Enter unlock code" />
+        </div>
+
+        <div class="unlock-actions">
+          <button id="unlockBtn" class="action-btn" type="button">Unlock Portal</button>
+          <button id="goMaintenanceAdminBtn" class="action-btn secondary hidden" type="button">Open Maintenance Controls</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="app" class="hidden">
     <div class="topbar">
@@ -406,6 +535,7 @@
             <button id="manageSignupsBtn" class="action-btn hidden">Manage Signups</button>
             <button id="addEmployeeBtn" class="action-btn hidden">Add Employee</button>
             <button id="employeeManagementBtn" class="action-btn hidden">Employee Management</button>
+            <button id="maintenanceAdminBtn" class="action-btn hidden">Maintenance Mode</button>
           </div>
         </div>
 
@@ -451,7 +581,8 @@
       getDocs,
       query,
       where,
-      limit
+      limit,
+      onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -467,9 +598,21 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const settingsRef = doc(db, "systemSettings", "portal");
+
     const loadingScreen = document.getElementById("loadingScreen");
+    const maintenanceScreen = document.getElementById("maintenanceScreen");
     const appEl = document.getElementById("app");
     const messageBox = document.getElementById("messageBox");
+
+    const maintenanceTitle = document.getElementById("maintenanceTitle");
+    const maintenanceText = document.getElementById("maintenanceText");
+    const maintenanceStatusText = document.getElementById("maintenanceStatusText");
+    const unlockPanel = document.getElementById("unlockPanel");
+    const unlockCodeInput = document.getElementById("unlockCodeInput");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const goMaintenanceAdminBtn = document.getElementById("goMaintenanceAdminBtn");
+    const unlockMessage = document.getElementById("unlockMessage");
 
     const welcomeText = document.getElementById("welcomeText");
     const roleBadge = document.getElementById("roleBadge");
@@ -503,11 +646,14 @@
     const manageSignupsBtn = document.getElementById("manageSignupsBtn");
     const addEmployeeBtn = document.getElementById("addEmployeeBtn");
     const employeeManagementBtn = document.getElementById("employeeManagementBtn");
+    const maintenanceAdminBtn = document.getElementById("maintenanceAdminBtn");
 
     const viewMyWriteupsBtn = document.getElementById("viewMyWriteupsBtn");
     const submitAppealBtn = document.getElementById("submitAppealBtn");
 
     let currentUserData = null;
+    let currentMaintenanceData = null;
+    let bypassUnlocked = sessionStorage.getItem("maintenanceBypassUnlocked") === "true";
 
     function showMessage(text, type) {
       messageBox.textContent = text;
@@ -517,6 +663,16 @@
     function clearMessage() {
       messageBox.textContent = "";
       messageBox.className = "message";
+    }
+
+    function showUnlockMessage(text, type) {
+      unlockMessage.textContent = text;
+      unlockMessage.className = `message ${type}`;
+    }
+
+    function clearUnlockMessage() {
+      unlockMessage.textContent = "";
+      unlockMessage.className = "message";
     }
 
     function formatValue(value) {
@@ -554,6 +710,22 @@
       return role === "manager" || role === "admin" || role === "owner" || role === "administrator";
     }
 
+    function canManageMaintenance(userData) {
+      const role = normalizeRole(userData.role);
+      return role === "admin" || role === "owner" || role === "administrator";
+    }
+
+    function userCanSeeUnlock(userData, maintenanceData) {
+      if (!userData || !maintenanceData) return false;
+
+      const normalizedRole = normalizeRole(userData.role);
+      const allowedRoles = Array.isArray(maintenanceData.allowedRolesDuringMaintenance)
+        ? maintenanceData.allowedRolesDuringMaintenance.map(v => normalizeRole(v))
+        : ["admin", "owner"];
+
+      return allowedRoles.includes(normalizedRole) || normalizedRole === "administrator";
+    }
+
     function getPillClass(status) {
       const value = (status || "").toLowerCase();
 
@@ -561,7 +733,7 @@
         return "pill success";
       }
 
-      if (value === "denied" || value === "overturned" || value === "deleted" || value === "reduced") {
+      if (value === "denied" || value === "overturned" || value === "deleted" || value === "reduced" || value === "inactive") {
         return "pill danger";
       }
 
@@ -599,6 +771,73 @@
       profileDepartment.textContent = formatValue(userData.departmentName);
       profileRole.textContent = formatValue(userData.role);
       profileStatus.textContent = formatValue(userData.status);
+    }
+
+    function applyRoleView(userData) {
+      setVisibility(issueWriteupBtn, canIssueWriteups(userData));
+      setVisibility(reviewAppealsBtn, canReviewAppeals(userData));
+      setVisibility(manageSignupsBtn, canManageSignups(userData));
+      setVisibility(addEmployeeBtn, canAddEmployees(userData));
+      setVisibility(employeeManagementBtn, canManageEmployees(userData));
+      setVisibility(maintenanceAdminBtn, canManageMaintenance(userData));
+      setVisibility(goMaintenanceAdminBtn, canManageMaintenance(userData));
+    }
+
+    function hideAllStates() {
+      loadingScreen.classList.add("hidden");
+      maintenanceScreen.classList.add("hidden");
+      appEl.classList.add("hidden");
+    }
+
+    function renderMaintenancePage() {
+      hideAllStates();
+      maintenanceScreen.classList.remove("hidden");
+
+      const message = currentMaintenanceData?.maintenanceMessage?.trim() || "Under Construction";
+      maintenanceTitle.textContent = "Under Construction";
+      maintenanceText.textContent = message;
+      maintenanceStatusText.textContent = "The portal is temporarily unavailable while maintenance is in progress.";
+
+      clearUnlockMessage();
+      unlockCodeInput.value = "";
+
+      if (userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        unlockPanel.classList.remove("hidden");
+      } else {
+        unlockPanel.classList.add("hidden");
+      }
+
+      applyRoleView(currentUserData || {});
+    }
+
+    function renderAppPage() {
+      hideAllStates();
+      appEl.classList.remove("hidden");
+    }
+
+    function applyMaintenanceState() {
+      if (!currentMaintenanceData || !currentUserData) {
+        hideAllStates();
+        loadingScreen.classList.remove("hidden");
+        return;
+      }
+
+      const maintenanceMode = currentMaintenanceData.maintenanceMode === true;
+
+      if (!maintenanceMode) {
+        sessionStorage.removeItem("maintenanceBypassUnlocked");
+        bypassUnlocked = false;
+        renderAppPage();
+        return;
+      }
+
+      if (bypassUnlocked && userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        renderAppPage();
+        showMessage("Maintenance bypass active for this session.", "success");
+        return;
+      }
+
+      renderMaintenancePage();
     }
 
     async function loadMyWriteups(userData) {
@@ -752,69 +991,58 @@
       }
     }
 
-    function applyRoleView(userData) {
-      setVisibility(issueWriteupBtn, canIssueWriteups(userData));
-      setVisibility(reviewAppealsBtn, canReviewAppeals(userData));
-      setVisibility(manageSignupsBtn, canManageSignups(userData));
-      setVisibility(addEmployeeBtn, canAddEmployees(userData));
-      setVisibility(employeeManagementBtn, canManageEmployees(userData));
-    }
-
-    async function loadDashboard(user, userData) {
-      currentUserData = userData;
+    async function loadDashboard(userData) {
       clearMessage();
       setProfile(userData);
       applyRoleView(userData);
 
-      loadingScreen.classList.add("hidden");
-      appEl.classList.remove("hidden");
-
-      loadMyWriteups(userData).catch((error) => {
-        console.error("loadMyWriteups failed:", error);
-      });
-
-      loadMyAppeals(userData).catch((error) => {
-        console.error("loadMyAppeals failed:", error);
-      });
-
-      loadManagerAppeals(userData).catch((error) => {
-        console.error("loadManagerAppeals failed:", error);
-      });
-
-      loadPendingSignups(userData).catch((error) => {
-        console.error("loadPendingSignups failed:", error);
-      });
+      await Promise.all([
+        loadMyWriteups(userData),
+        loadMyAppeals(userData),
+        loadManagerAppeals(userData),
+        loadPendingSignups(userData)
+      ]);
     }
 
-    async function initializeDashboard(user) {
-      try {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
+    unlockBtn.addEventListener("click", () => {
+      clearUnlockMessage();
 
-        if (!userSnap.exists()) {
-          await signOut(auth);
-          window.location.href = "login.html";
-          return;
-        }
-
-        const userData = userSnap.data();
-
-        if ((userData.status || "").toLowerCase() !== "active") {
-          await signOut(auth);
-          window.location.href = "login.html";
-          return;
-        }
-
-        await loadDashboard(user, userData);
-      } catch (error) {
-        console.error("Dashboard initialization error:", error);
-        loadingScreen.textContent = "Failed to load dashboard.";
+      if (!currentMaintenanceData || currentMaintenanceData.maintenanceMode !== true) {
+        showUnlockMessage("Maintenance mode is not currently active.", "error");
+        return;
       }
-    }
+
+      if (!userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        showUnlockMessage("You do not have permission to unlock the portal.", "error");
+        return;
+      }
+
+      const typedCode = unlockCodeInput.value.trim();
+      const actualCode = String(currentMaintenanceData.unlockCode || "").trim();
+
+      if (!typedCode) {
+        showUnlockMessage("Enter the unlock code.", "error");
+        return;
+      }
+
+      if (typedCode !== actualCode) {
+        showUnlockMessage("That unlock code is incorrect.", "error");
+        return;
+      }
+
+      bypassUnlocked = true;
+      sessionStorage.setItem("maintenanceBypassUnlocked", "true");
+      applyMaintenanceState();
+    });
+
+    goMaintenanceAdminBtn.addEventListener("click", () => {
+      window.location.href = "maintenance-admin.html";
+    });
 
     logoutBtn.addEventListener("click", async () => {
       try {
         await signOut(auth);
+        sessionStorage.removeItem("maintenanceBypassUnlocked");
         window.location.href = "login.html";
       } catch (error) {
         console.error("Logout error:", error);
@@ -823,9 +1051,9 @@
     });
 
     refreshBtn.addEventListener("click", async () => {
-      if (!auth.currentUser || !currentUserData) return;
+      if (!currentUserData) return;
       showMessage("Refreshing dashboard...", "success");
-      await loadDashboard(auth.currentUser, currentUserData);
+      await loadDashboard(currentUserData);
       setTimeout(() => clearMessage(), 1200);
     });
 
@@ -862,6 +1090,10 @@
       window.location.href = "employee-management.html";
     });
 
+    maintenanceAdminBtn.addEventListener("click", () => {
+      window.location.href = "maintenance-admin.html";
+    });
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html";
@@ -869,11 +1101,54 @@
       }
 
       try {
-        await initializeDashboard(user);
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+          await signOut(auth);
+          window.location.href = "login.html";
+          return;
+        }
+
+        currentUserData = userSnap.data();
+
+        if ((currentUserData.status || "").toLowerCase() !== "active") {
+          await signOut(auth);
+          window.location.href = "login.html";
+          return;
+        }
+
+        await loadDashboard(currentUserData);
+        applyMaintenanceState();
       } catch (error) {
         console.error("Dashboard auth error:", error);
-        loadingScreen.textContent = "Failed to load dashboard.";
+        hideAllStates();
+        loadingScreen.classList.remove("hidden");
+        loadingScreen.querySelector("p").textContent = "Failed to load dashboard.";
       }
+    });
+
+    onSnapshot(settingsRef, (snap) => {
+      if (snap.exists()) {
+        currentMaintenanceData = snap.data();
+      } else {
+        currentMaintenanceData = {
+          maintenanceMode: false,
+          maintenanceMessage: "Under Construction",
+          unlockCode: "",
+          allowedRolesDuringMaintenance: ["Admin", "Owner"]
+        };
+      }
+
+      applyMaintenanceState();
+    }, () => {
+      currentMaintenanceData = {
+        maintenanceMode: false,
+        maintenanceMessage: "Under Construction",
+        unlockCode: "",
+        allowedRolesDuringMaintenance: ["Admin", "Owner"]
+      };
+      applyMaintenanceState();
     });
   </script>
 </body>
