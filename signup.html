@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Employee Signup Request</title>
+  <title>Request Access</title>
   <style>
     * {
       box-sizing: border-box;
@@ -12,8 +12,14 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      background: linear-gradient(135deg, #eff6ff, #f8fafc);
       color: #111827;
+      min-height: 100vh;
+    }
+
+    .loading-screen,
+    .maintenance-screen,
+    .page-wrap {
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -21,94 +27,149 @@
       padding: 24px;
     }
 
-    .card {
+    .loading-box,
+    .maintenance-box,
+    .signup-shell {
       width: 100%;
-      max-width: 560px;
-      background: #ffffff;
-      border-radius: 18px;
-      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22);
-      padding: 34px 30px;
+      max-width: 1080px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
     }
 
-    h1 {
-      margin: 0 0 10px 0;
+    .loading-box,
+    .maintenance-box {
+      max-width: 620px;
+      padding: 34px 28px;
       text-align: center;
-      font-size: 30px;
+    }
+
+    .loading-box h2,
+    .maintenance-box h1 {
+      margin: 0 0 12px;
       color: #111827;
     }
 
-    .subtitle {
-      margin: 0 0 28px 0;
-      text-align: center;
+    .loading-box p,
+    .maintenance-box p {
+      margin: 0;
       color: #6b7280;
-      line-height: 1.6;
-      font-size: 15px;
+      line-height: 1.7;
     }
 
-    .field-group {
-      margin-bottom: 18px;
+    .maintenance-box h1 {
+      font-size: 38px;
     }
 
-    label {
-      display: block;
-      margin-bottom: 7px;
-      font-weight: 700;
-      color: #1f2937;
+    .maintenance-status {
+      margin-top: 18px;
       font-size: 14px;
+      color: #475569;
     }
 
-    input {
-      width: 100%;
-      border: 1px solid #d1d5db;
-      border-radius: 12px;
-      padding: 13px 14px;
+    .unlock-panel {
+      margin-top: 24px;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .unlock-panel h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #111827;
+    }
+
+    .unlock-panel p {
+      margin: 0 0 14px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .signup-shell {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      min-height: 760px;
+    }
+
+    .signup-left {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: white;
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .signup-left h1 {
+      margin: 0 0 14px;
+      font-size: 38px;
+      line-height: 1.15;
+    }
+
+    .signup-left p {
+      margin: 0;
+      color: #dbeafe;
+      line-height: 1.8;
       font-size: 15px;
-      outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
-    input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    .info-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 28px;
     }
 
-    .submit-btn {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 16px;
+    .info-item {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+
+    .info-item-title {
       font-weight: 700;
-      color: #ffffff;
-      background: #2563eb;
-      cursor: pointer;
-      transition: background 0.15s ease;
-      margin-top: 8px;
+      margin-bottom: 6px;
+      color: white;
     }
 
-    .submit-btn:hover {
-      background: #1d4ed8;
+    .info-item-text {
+      color: #dbeafe;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
-    .submit-btn:disabled {
-      background: #93c5fd;
-      cursor: not-allowed;
+    .signup-right {
+      padding: 42px 34px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .panel-title {
+      margin: 0 0 8px;
+      font-size: 28px;
+      color: #111827;
+    }
+
+    .panel-subtitle {
+      margin: 0 0 22px;
+      color: #6b7280;
+      line-height: 1.7;
+      font-size: 14px;
     }
 
     .message {
       display: none;
-      margin-top: 18px;
-      padding: 13px 14px;
-      border-radius: 12px;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
       font-size: 14px;
       line-height: 1.5;
-    }
-
-    .message.success {
-      display: block;
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #bbf7d0;
     }
 
     .message.error {
@@ -118,92 +179,263 @@
       border: 1px solid #fecaca;
     }
 
-    .footer-note {
-      margin-top: 20px;
-      text-align: center;
-      color: #6b7280;
-      font-size: 13px;
-      line-height: 1.5;
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
     }
 
-    .back-link {
-      display: inline-block;
-      margin-top: 18px;
-      color: #2563eb;
-      text-decoration: none;
+    .field-group {
+      margin-bottom: 16px;
+    }
+
+    .field-group label {
+      display: block;
+      margin-bottom: 7px;
       font-weight: 700;
+      color: #1f2937;
       font-size: 14px;
     }
 
-    .back-link:hover {
-      text-decoration: underline;
+    .field-group input,
+    .field-group select,
+    .field-group textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      font-family: Arial, sans-serif;
     }
 
-    .link-wrap {
-      text-align: center;
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: #2563eb;
+      color: white;
+      flex: 1 1 220px;
+    }
+
+    .btn.secondary {
+      background: #e5edff;
+      color: #1d4ed8;
+      flex: 1 1 160px;
+    }
+
+    .btn.ghost {
+      background: #f8fafc;
+      color: #111827;
+      border: 1px solid #d1d5db;
+      flex: 1 1 160px;
+    }
+
+    .small-note {
+      margin-top: 16px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .signup-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .signup-left {
+        padding: 34px 28px;
+      }
+
+      .signup-left h1 {
+        font-size: 30px;
+      }
+
+      .signup-right {
+        padding: 30px 24px;
+      }
     }
 
     @media (max-width: 640px) {
-      .card {
-        padding: 26px 20px;
+      .loading-box,
+      .maintenance-box {
+        padding: 24px 20px;
       }
 
-      h1 {
-        font-size: 26px;
+      .maintenance-box h1 {
+        font-size: 30px;
+      }
+
+      .page-wrap,
+      .loading-screen,
+      .maintenance-screen {
+        padding: 16px;
+      }
+
+      .btn-row {
+        flex-direction: column;
       }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Request Access</h1>
-    <p class="subtitle">
-      Enter your Employee ID, username, and email address to request access to the employee system.
-      Your department manager must approve your request before you can create your account.
-    </p>
-
-    <form id="signupForm">
-      <div class="field-group">
-        <label for="employeeId">Employee ID</label>
-        <input type="text" id="employeeId" name="employeeId" maxlength="30" required />
-      </div>
-
-      <div class="field-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" maxlength="50" required />
-      </div>
-
-      <div class="field-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" maxlength="120" required />
-      </div>
-
-      <button type="submit" id="submitBtn" class="submit-btn">Submit Signup Request</button>
-    </form>
-
-    <div id="messageBox" class="message"></div>
-
-    <div class="footer-note">
-      If your request is approved, you will receive an email with instructions for creating your password.
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>Loading Access Request</h2>
+      <p>Please wait while the portal checks system availability.</p>
     </div>
+  </div>
 
-    <div class="link-wrap">
-      <a href="index.html" class="back-link">Back to Home</a>
+  <div id="maintenanceScreen" class="maintenance-screen hidden">
+    <div class="maintenance-box">
+      <h1 id="maintenanceTitle">Under Construction</h1>
+      <p id="maintenanceText">This portal is currently unavailable while maintenance is being performed.</p>
+      <div class="maintenance-status" id="maintenanceStatusText">Please check back later.</div>
+
+      <div id="unlockPanel" class="unlock-panel hidden">
+        <h3>Admin / Owner Unlock</h3>
+        <p>Enter the unlock code to temporarily bypass maintenance mode on this device.</p>
+
+        <div id="unlockMessage" class="message"></div>
+
+        <div class="field-group">
+          <label for="unlockCodeInput">Unlock Code</label>
+          <input type="password" id="unlockCodeInput" maxlength="100" placeholder="Enter unlock code" />
+        </div>
+
+        <div class="btn-row">
+          <button id="unlockBtn" class="btn primary" type="button">Unlock Portal</button>
+          <button id="backHomeBtn" class="btn ghost" type="button">Back Home</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainPage" class="page-wrap hidden">
+    <div class="signup-shell">
+      <div class="signup-left">
+        <h1>Request Portal Access</h1>
+        <p>
+          Employees must request access before they can create a password and sign in to the portal.
+        </p>
+
+        <div class="info-list">
+          <div class="info-item">
+            <div class="info-item-title">Employee ID Required</div>
+            <div class="info-item-text">Your Employee ID is required to validate your request before access can be approved.</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-item-title">Manager Review</div>
+            <div class="info-item-text">Your request will be routed for approval based on your department and employee information.</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-item-title">Password Creation</div>
+            <div class="info-item-text">Once approved, you will receive a password setup link to activate your account.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="signup-right">
+        <h2 class="panel-title">Request Access</h2>
+        <p class="panel-subtitle">
+          Fill out the form below to request access to the employee portal.
+        </p>
+
+        <div id="mainMessage" class="message"></div>
+
+        <form id="signupForm">
+          <div class="field-group">
+            <label for="employeeIdInput">Employee ID</label>
+            <input type="text" id="employeeIdInput" required maxlength="30" placeholder="Enter your Employee ID" />
+          </div>
+
+          <div class="field-group">
+            <label for="usernameInput">Username</label>
+            <input type="text" id="usernameInput" required maxlength="50" placeholder="Enter your username" />
+          </div>
+
+          <div class="field-group">
+            <label for="emailInput">Email</label>
+            <input type="email" id="emailInput" required maxlength="120" placeholder="Enter your email" />
+          </div>
+
+          <div class="field-group">
+            <label for="departmentIdInput">Department ID</label>
+            <input type="text" id="departmentIdInput" required maxlength="40" placeholder="Enter your Department ID" />
+          </div>
+
+          <div class="field-group">
+            <label for="departmentNameInput">Department Name</label>
+            <input type="text" id="departmentNameInput" required maxlength="80" placeholder="Enter your Department Name" />
+          </div>
+
+          <div class="field-group">
+            <label for="roleInput">Role</label>
+            <input type="text" id="roleInput" required maxlength="80" placeholder="Enter your position or role" />
+          </div>
+
+          <div class="btn-row">
+            <button id="submitBtn" class="btn primary" type="submit">Submit Request</button>
+            <button id="loginBtn" class="btn secondary" type="button">Go to Login</button>
+            <button id="homeBtn" class="btn ghost" type="button">Back Home</button>
+          </div>
+        </form>
+
+        <div class="small-note">
+          Make sure your Employee ID and department information match your company records exactly.
+        </div>
+      </div>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore,
       doc,
       getDoc,
       collection,
+      addDoc,
+      getDocs,
       query,
       where,
-      getDocs,
-      addDoc,
-      serverTimestamp
+      limit,
+      serverTimestamp,
+      onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -215,46 +447,166 @@
       appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
     };
 
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVAWY7quY1FBJG5NTpUhRrR0yA4D0CcilQf6VMYMBKBaP7GWRQifhBhdlxUuHsri7h-w/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx66XksoJLgvQyoGQkRBPDLUeNnedrGB5kDS4jVtONTNyD5L5DflUuBCJvGyrFjUvfgYQ/exec";
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const settingsRef = doc(db, "systemSettings", "portal");
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const maintenanceScreen = document.getElementById("maintenanceScreen");
+    const mainPage = document.getElementById("mainPage");
+
+    const maintenanceTitle = document.getElementById("maintenanceTitle");
+    const maintenanceText = document.getElementById("maintenanceText");
+    const maintenanceStatusText = document.getElementById("maintenanceStatusText");
+    const unlockPanel = document.getElementById("unlockPanel");
+    const unlockCodeInput = document.getElementById("unlockCodeInput");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const backHomeBtn = document.getElementById("backHomeBtn");
+    const unlockMessage = document.getElementById("unlockMessage");
+
+    const mainMessage = document.getElementById("mainMessage");
     const signupForm = document.getElementById("signupForm");
-    const employeeIdInput = document.getElementById("employeeId");
-    const usernameInput = document.getElementById("username");
-    const emailInput = document.getElementById("email");
+    const employeeIdInput = document.getElementById("employeeIdInput");
+    const usernameInput = document.getElementById("usernameInput");
+    const emailInput = document.getElementById("emailInput");
+    const departmentIdInput = document.getElementById("departmentIdInput");
+    const departmentNameInput = document.getElementById("departmentNameInput");
+    const roleInput = document.getElementById("roleInput");
     const submitBtn = document.getElementById("submitBtn");
-    const messageBox = document.getElementById("messageBox");
+    const loginBtn = document.getElementById("loginBtn");
+    const homeBtn = document.getElementById("homeBtn");
 
-    function showMessage(text, type) {
-      messageBox.textContent = text;
-      messageBox.className = `message ${type}`;
+    let currentUserData = null;
+    let currentMaintenanceData = null;
+    let bypassUnlocked = sessionStorage.getItem("maintenanceBypassUnlocked") === "true";
+
+    function showMessage(el, text, type) {
+      el.textContent = text;
+      el.className = `message ${type}`;
     }
 
-    function clearMessage() {
-      messageBox.textContent = "";
-      messageBox.className = "message";
+    function clearMessage(el) {
+      el.textContent = "";
+      el.className = "message";
     }
 
-    function normalizeText(value) {
-      return value.trim();
+    function normalizeRole(role) {
+      return String(role || "").trim().toLowerCase();
     }
 
-    function normalizeUsername(value) {
-      return value.trim().toLowerCase();
+    function userCanSeeUnlock(userData, maintenanceData) {
+      if (!userData || !maintenanceData) return false;
+
+      const normalizedRole = normalizeRole(userData.role);
+      const allowedRoles = Array.isArray(maintenanceData.allowedRolesDuringMaintenance)
+        ? maintenanceData.allowedRolesDuringMaintenance.map(v => normalizeRole(v))
+        : ["admin", "owner"];
+
+      return allowedRoles.includes(normalizedRole) || normalizedRole === "administrator";
     }
 
-    function normalizeEmail(value) {
-      return value.trim().toLowerCase();
+    function hideAllStates() {
+      loadingScreen.classList.add("hidden");
+      maintenanceScreen.classList.add("hidden");
+      mainPage.classList.add("hidden");
     }
 
-    async function sendManagerApprovalEmail(payload) {
-      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE") {
-        console.warn("Apps Script URL has not been set yet.");
+    function renderNormalPage() {
+      hideAllStates();
+      mainPage.classList.remove("hidden");
+      clearMessage(mainMessage);
+    }
+
+    function renderMaintenancePage() {
+      hideAllStates();
+      maintenanceScreen.classList.remove("hidden");
+
+      const message = currentMaintenanceData?.maintenanceMessage?.trim() || "Under Construction";
+      maintenanceTitle.textContent = "Under Construction";
+      maintenanceText.textContent = message;
+      maintenanceStatusText.textContent = "The portal is temporarily unavailable while maintenance is in progress.";
+
+      clearMessage(unlockMessage);
+      unlockCodeInput.value = "";
+
+      if (userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        unlockPanel.classList.remove("hidden");
+      } else {
+        unlockPanel.classList.add("hidden");
+      }
+    }
+
+    function applyMaintenanceState() {
+      if (!currentMaintenanceData) {
+        hideAllStates();
+        loadingScreen.classList.remove("hidden");
         return;
       }
 
+      const maintenanceMode = currentMaintenanceData.maintenanceMode === true;
+
+      if (!maintenanceMode) {
+        sessionStorage.removeItem("maintenanceBypassUnlocked");
+        bypassUnlocked = false;
+        renderNormalPage();
+        return;
+      }
+
+      if (bypassUnlocked && userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        renderNormalPage();
+        showMessage(mainMessage, "Maintenance bypass active for this session.", "success");
+        return;
+      }
+
+      renderMaintenancePage();
+    }
+
+    async function loadCurrentUser(firebaseUser) {
+      if (!firebaseUser) {
+        currentUserData = null;
+        applyMaintenanceState();
+        return;
+      }
+
+      try {
+        const userRef = doc(db, "users", firebaseUser.uid);
+        const userSnap = await getDoc(userRef);
+        currentUserData = userSnap.exists() ? userSnap.data() : null;
+      } catch (error) {
+        currentUserData = null;
+      }
+
+      applyMaintenanceState();
+    }
+
+    async function findEmployeeRecord(employeeId) {
+      const employeeRef = doc(db, "employees", employeeId);
+      const employeeSnap = await getDoc(employeeRef);
+      if (!employeeSnap.exists()) return null;
+
+      return {
+        id: employeeSnap.id,
+        data: employeeSnap.data()
+      };
+    }
+
+    async function existingSignupRequest(employeeId) {
+      const q = query(
+        collection(db, "signupRequests"),
+        where("employeeId", "==", employeeId),
+        where("status", "==", "pending"),
+        limit(1)
+      );
+
+      const snap = await getDocs(q);
+      return !snap.empty;
+    }
+
+    async function sendManagerApprovalEmail(payload) {
       const response = await fetch(APPS_SCRIPT_URL, {
         method: "POST",
         headers: {
@@ -264,22 +616,72 @@
       });
 
       const result = await response.json();
-
       if (!result.success) {
         throw new Error(result.message || "Approval email could not be sent.");
       }
     }
 
+    unlockBtn.addEventListener("click", () => {
+      clearMessage(unlockMessage);
+
+      if (!currentMaintenanceData || currentMaintenanceData.maintenanceMode !== true) {
+        showMessage(unlockMessage, "Maintenance mode is not currently active.", "error");
+        return;
+      }
+
+      if (!userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        showMessage(unlockMessage, "You do not have permission to unlock the portal.", "error");
+        return;
+      }
+
+      const typedCode = unlockCodeInput.value.trim();
+      const actualCode = String(currentMaintenanceData.unlockCode || "").trim();
+
+      if (!typedCode) {
+        showMessage(unlockMessage, "Enter the unlock code.", "error");
+        return;
+      }
+
+      if (typedCode !== actualCode) {
+        showMessage(unlockMessage, "That unlock code is incorrect.", "error");
+        return;
+      }
+
+      bypassUnlocked = true;
+      sessionStorage.setItem("maintenanceBypassUnlocked", "true");
+      applyMaintenanceState();
+    });
+
+    backHomeBtn.addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+
+    loginBtn.addEventListener("click", () => {
+      window.location.href = "login.html";
+    });
+
+    homeBtn.addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+
     signupForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      clearMessage();
+      clearMessage(mainMessage);
 
-      const employeeId = normalizeText(employeeIdInput.value);
-      const username = normalizeText(usernameInput.value);
-      const email = normalizeEmail(emailInput.value);
+      if (currentMaintenanceData?.maintenanceMode === true && !bypassUnlocked) {
+        applyMaintenanceState();
+        return;
+      }
 
-      if (!employeeId || !username || !email) {
-        showMessage("Please fill out all fields before submitting.", "error");
+      const employeeId = employeeIdInput.value.trim();
+      const username = usernameInput.value.trim();
+      const email = emailInput.value.trim().toLowerCase();
+      const departmentId = departmentIdInput.value.trim();
+      const departmentName = departmentNameInput.value.trim();
+      const role = roleInput.value.trim();
+
+      if (!employeeId || !username || !email || !departmentId || !departmentName || !role) {
+        showMessage(mainMessage, "Complete all required fields before submitting.", "error");
         return;
       }
 
@@ -287,112 +689,98 @@
       submitBtn.textContent = "Submitting...";
 
       try {
-        const employeeRef = doc(db, "employees", employeeId);
-        const employeeSnap = await getDoc(employeeRef);
+        const employeeRecord = await findEmployeeRecord(employeeId);
 
-        if (!employeeSnap.exists()) {
-          showMessage("That Employee ID was not found. Please contact management.", "error");
-          return;
+        if (!employeeRecord) {
+          throw new Error("No employee record was found for that Employee ID.");
         }
 
-        const employeeData = employeeSnap.data();
-
-        if (employeeData.canSignup !== true) {
-          showMessage("This employee record is not allowed to sign up at this time.", "error");
-          return;
-        }
+        const employeeData = employeeRecord.data;
 
         if ((employeeData.status || "").toLowerCase() !== "active") {
-          showMessage("This employee record is not active. Please contact management.", "error");
-          return;
+          throw new Error("This employee record is not active.");
         }
 
-        if (employeeData.accountCreated === true) {
-          showMessage("An account has already been created for this Employee ID.", "error");
-          return;
+        if (employeeData.signupApproved === true && employeeData.accountCreated === true) {
+          throw new Error("This employee already has portal access.");
         }
 
-        if (employeeData.loginEnabled === true) {
-          showMessage("This account is already enabled. Please use the sign in page.", "error");
-          return;
+        if (await existingSignupRequest(employeeId)) {
+          throw new Error("A pending signup request already exists for this employee.");
         }
 
-        const storedUsername = normalizeUsername(employeeData.username || "");
-        const enteredUsername = normalizeUsername(username);
-
-        if (!storedUsername || storedUsername !== enteredUsername) {
-          showMessage("The username does not match the employee record.", "error");
-          return;
+        const managerEmail = employeeData.managerEmail || "";
+        if (!managerEmail) {
+          throw new Error("This employee does not have a manager email assigned in the employee record.");
         }
 
-        const storedEmail = normalizeEmail(employeeData.email || "");
-
-        if (storedEmail && storedEmail !== email) {
-          showMessage("The email address does not match the employee record.", "error");
-          return;
-        }
-
-        const pendingRequestQuery = query(
-          collection(db, "signupRequests"),
-          where("employeeId", "==", employeeId),
-          where("status", "==", "pending")
-        );
-
-        const pendingRequestSnap = await getDocs(pendingRequestQuery);
-
-        if (!pendingRequestSnap.empty) {
-          showMessage("A pending signup request already exists for this Employee ID.", "error");
-          return;
-        }
-
-        const signupRequestData = {
-          requestId: "auto",
-          employeeId: employeeId,
-          username: employeeData.username || username,
-          email: email,
-          departmentId: employeeData.departmentId || "",
-          departmentName: employeeData.departmentName || "",
-          role: employeeData.role || "Employee",
-          managerEmail: employeeData.managerEmail || "",
+        const added = await addDoc(collection(db, "signupRequests"), {
+          employeeId,
+          username,
+          email,
+          departmentId,
+          departmentName,
+          role,
+          managerEmail,
           status: "pending",
           verified: true,
           accountCreated: false,
           passwordSetupSent: false,
           approvedBy: null,
+          approvedByUsername: null,
           approvedAt: null,
           deniedBy: null,
+          deniedByUsername: null,
           deniedAt: null,
           denialReason: null,
           submittedAt: serverTimestamp()
-        };
-
-        const docRef = await addDoc(collection(db, "signupRequests"), signupRequestData);
-
-        await sendManagerApprovalEmail({
-          requestId: docRef.id,
-          employeeId: employeeId,
-          username: employeeData.username || username,
-          email: email,
-          departmentName: employeeData.departmentName || "",
-          managerEmail: employeeData.managerEmail || ""
         });
 
-        showMessage(
-          "Your signup request has been submitted successfully and is now waiting for manager approval.",
-          "success"
-        );
+        await sendManagerApprovalEmail({
+          requestId: added.id,
+          employeeId,
+          username,
+          email,
+          departmentName,
+          managerEmail
+        });
 
         signupForm.reset();
+        showMessage(mainMessage, "Access request submitted successfully. Your manager has been notified.", "success");
       } catch (error) {
-        console.error("Signup submission error:", error);
-        showMessage(
-          error.message || "An unexpected error occurred while submitting your signup request.",
-          "error"
-        );
+        console.error(error);
+        showMessage(mainMessage, error.message || "Your access request could not be submitted.", "error");
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Submit Signup Request";
+        submitBtn.textContent = "Submit Request";
       }
+    });
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      await loadCurrentUser(firebaseUser);
+    });
+
+    onSnapshot(settingsRef, (snap) => {
+      if (snap.exists()) {
+        currentMaintenanceData = snap.data();
+      } else {
+        currentMaintenanceData = {
+          maintenanceMode: false,
+          maintenanceMessage: "Under Construction",
+          unlockCode: "",
+          allowedRolesDuringMaintenance: ["Admin", "Owner"]
+        };
+      }
+
+      applyMaintenanceState();
+    }, () => {
+      currentMaintenanceData = {
+        maintenanceMode: false,
+        maintenanceMessage: "Under Construction",
+        unlockCode: "",
+        allowedRolesDuringMaintenance: ["Admin", "Owner"]
+      };
+      applyMaintenanceState();
     });
   </script>
 </body>
