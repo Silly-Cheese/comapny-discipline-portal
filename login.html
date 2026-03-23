@@ -12,7 +12,14 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      background: linear-gradient(135deg, #eff6ff, #f8fafc);
+      color: #111827;
+      min-height: 100vh;
+    }
+
+    .loading-screen,
+    .maintenance-screen,
+    .page-wrap {
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -20,94 +27,149 @@
       padding: 24px;
     }
 
-    .card {
+    .loading-box,
+    .maintenance-box,
+    .login-shell {
       width: 100%;
-      max-width: 520px;
-      background: #ffffff;
-      border-radius: 18px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
-      padding: 34px 30px;
+      max-width: 980px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+      overflow: hidden;
     }
 
-    h1 {
-      margin: 0 0 10px 0;
+    .loading-box,
+    .maintenance-box {
+      max-width: 620px;
+      padding: 34px 28px;
       text-align: center;
+    }
+
+    .loading-box h2,
+    .maintenance-box h1 {
+      margin: 0 0 12px;
       color: #111827;
-      font-size: 30px;
     }
 
-    .subtitle {
-      margin: 0 0 28px 0;
-      text-align: center;
+    .loading-box p,
+    .maintenance-box p {
+      margin: 0;
       color: #6b7280;
+      line-height: 1.7;
+    }
+
+    .maintenance-box h1 {
+      font-size: 38px;
+    }
+
+    .maintenance-status {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #475569;
+    }
+
+    .unlock-panel {
+      margin-top: 24px;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .unlock-panel h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #111827;
+    }
+
+    .unlock-panel p {
+      margin: 0 0 14px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .login-shell {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      min-height: 680px;
+    }
+
+    .login-left {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: white;
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-left h1 {
+      margin: 0 0 14px;
+      font-size: 38px;
+      line-height: 1.15;
+    }
+
+    .login-left p {
+      margin: 0;
+      color: #dbeafe;
+      line-height: 1.8;
       font-size: 15px;
+    }
+
+    .info-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .info-item {
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+
+    .info-item-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: white;
+    }
+
+    .info-item-text {
+      color: #dbeafe;
+      font-size: 14px;
       line-height: 1.6;
     }
 
-    .field-group {
-      margin-bottom: 18px;
+    .login-right {
+      padding: 42px 34px;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
-    label {
-      display: block;
-      margin-bottom: 7px;
-      font-weight: 700;
-      color: #1f2937;
+    .panel-title {
+      margin: 0 0 8px;
+      font-size: 28px;
+      color: #111827;
+    }
+
+    .panel-subtitle {
+      margin: 0 0 22px;
+      color: #6b7280;
+      line-height: 1.7;
       font-size: 14px;
-    }
-
-    input {
-      width: 100%;
-      border: 1px solid #d1d5db;
-      border-radius: 12px;
-      padding: 13px 14px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-    }
-
-    .submit-btn {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: 700;
-      color: #ffffff;
-      background: #2563eb;
-      cursor: pointer;
-      transition: background 0.15s ease;
-      margin-top: 8px;
-    }
-
-    .submit-btn:hover {
-      background: #1d4ed8;
-    }
-
-    .submit-btn:disabled {
-      background: #93c5fd;
-      cursor: not-allowed;
     }
 
     .message {
       display: none;
-      margin-top: 18px;
-      padding: 13px 14px;
-      border-radius: 12px;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
       font-size: 14px;
       line-height: 1.5;
-    }
-
-    .message.success {
-      display: block;
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #bbf7d0;
     }
 
     .message.error {
@@ -117,72 +179,221 @@
       border: 1px solid #fecaca;
     }
 
-    .footer-note {
-      margin-top: 20px;
-      text-align: center;
-      color: #6b7280;
-      font-size: 13px;
-      line-height: 1.5;
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
     }
 
-    .link-wrap {
-      text-align: center;
-      margin-top: 18px;
+    .field-group {
+      margin-bottom: 16px;
     }
 
-    .link-wrap a {
-      color: #2563eb;
-      text-decoration: none;
+    .field-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 14px;
+    }
+
+    .field-group input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .field-group input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
       font-weight: 700;
       font-size: 14px;
-      margin: 0 8px;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease;
     }
 
-    .link-wrap a:hover {
-      text-decoration: underline;
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      background: #2563eb;
+      color: white;
+      flex: 1 1 220px;
+    }
+
+    .btn.secondary {
+      background: #e5edff;
+      color: #1d4ed8;
+      flex: 1 1 160px;
+    }
+
+    .btn.ghost {
+      background: #f8fafc;
+      color: #111827;
+      border: 1px solid #d1d5db;
+      flex: 1 1 160px;
+    }
+
+    .small-note {
+      margin-top: 16px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .login-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .login-left {
+        padding: 34px 28px;
+      }
+
+      .login-left h1 {
+        font-size: 30px;
+      }
+
+      .login-right {
+        padding: 30px 24px;
+      }
     }
 
     @media (max-width: 640px) {
-      .card {
-        padding: 26px 20px;
+      .loading-box,
+      .maintenance-box {
+        padding: 24px 20px;
       }
 
-      h1 {
-        font-size: 26px;
+      .maintenance-box h1 {
+        font-size: 30px;
+      }
+
+      .page-wrap,
+      .loading-screen,
+      .maintenance-screen {
+        padding: 16px;
+      }
+
+      .btn-row {
+        flex-direction: column;
       }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Sign In</h1>
-    <p class="subtitle">
-      Sign in to access your employee portal, view records, and manage your account.
-    </p>
-
-    <form id="loginForm">
-      <div class="field-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" maxlength="120" required />
-      </div>
-
-      <div class="field-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required />
-      </div>
-
-      <button type="submit" id="loginBtn" class="submit-btn">Sign In</button>
-    </form>
-
-    <div id="messageBox" class="message"></div>
-
-    <div class="footer-note">
-      Your account must be approved and activated before sign in will work.
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>Loading Login</h2>
+      <p>Please wait while the portal checks system availability.</p>
     </div>
+  </div>
 
-    <div class="link-wrap">
-      <a href="index.html">Back to Home</a>
-      <a href="signup.html">Request Access</a>
+  <div id="maintenanceScreen" class="maintenance-screen hidden">
+    <div class="maintenance-box">
+      <h1 id="maintenanceTitle">Under Construction</h1>
+      <p id="maintenanceText">This portal is currently unavailable while maintenance is being performed.</p>
+      <div class="maintenance-status" id="maintenanceStatusText">Please check back later.</div>
+
+      <div id="unlockPanel" class="unlock-panel hidden">
+        <h3>Admin / Owner Unlock</h3>
+        <p>Enter the unlock code to temporarily bypass maintenance mode on this device.</p>
+
+        <div id="unlockMessage" class="message"></div>
+
+        <div class="field-group">
+          <label for="unlockCodeInput">Unlock Code</label>
+          <input type="password" id="unlockCodeInput" maxlength="100" placeholder="Enter unlock code" />
+        </div>
+
+        <div class="btn-row">
+          <button id="unlockBtn" class="btn primary" type="button">Unlock Portal</button>
+          <button id="backHomeBtn" class="btn ghost" type="button">Back Home</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainPage" class="page-wrap hidden">
+    <div class="login-shell">
+      <div class="login-left">
+        <h1>Employee Portal Login</h1>
+        <p>
+          Sign in to access employee tools, manager controls, signup reviews, write-up workflows, appeals, and portal administration.
+        </p>
+
+        <div class="info-list">
+          <div class="info-item">
+            <div class="info-item-title">Employees</div>
+            <div class="info-item-text">View your write-ups, track appeals, and access your portal account.</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-item-title">Managers</div>
+            <div class="info-item-text">Review appeals, manage signup approvals, add employees, and issue discipline.</div>
+          </div>
+
+          <div class="info-item">
+            <div class="info-item-title">Admins and Owners</div>
+            <div class="info-item-text">Use advanced management pages, maintenance controls, and employee administration tools.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-right">
+        <h2 class="panel-title">Sign In</h2>
+        <p class="panel-subtitle">
+          Enter your employee portal login details below.
+        </p>
+
+        <div id="mainMessage" class="message"></div>
+
+        <form id="loginForm">
+          <div class="field-group">
+            <label for="emailInput">Email</label>
+            <input type="email" id="emailInput" autocomplete="username" required placeholder="Enter your email" />
+          </div>
+
+          <div class="field-group">
+            <label for="passwordInput">Password</label>
+            <input type="password" id="passwordInput" autocomplete="current-password" required placeholder="Enter your password" />
+          </div>
+
+          <div class="btn-row">
+            <button id="loginBtn" class="btn primary" type="submit">Log In</button>
+            <button id="requestAccessBtn" class="btn secondary" type="button">Request Access</button>
+            <button id="createPasswordBtn" class="btn ghost" type="button">Create Password</button>
+          </div>
+        </form>
+
+        <div class="small-note">
+          If you do not have an account yet, request access first and wait for approval before creating your password.
+        </div>
+      </div>
     </div>
   </div>
 
@@ -190,15 +401,14 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import {
       getAuth,
-      signInWithEmailAndPassword,
-      signOut
+      onAuthStateChanged,
+      signInWithEmailAndPassword
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore,
       doc,
       getDoc,
-      updateDoc,
-      serverTimestamp
+      onSnapshot
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -214,104 +424,247 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    const settingsRef = doc(db, "systemSettings", "portal");
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const maintenanceScreen = document.getElementById("maintenanceScreen");
+    const mainPage = document.getElementById("mainPage");
+
+    const maintenanceTitle = document.getElementById("maintenanceTitle");
+    const maintenanceText = document.getElementById("maintenanceText");
+    const maintenanceStatusText = document.getElementById("maintenanceStatusText");
+    const unlockPanel = document.getElementById("unlockPanel");
+    const unlockCodeInput = document.getElementById("unlockCodeInput");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const backHomeBtn = document.getElementById("backHomeBtn");
+    const unlockMessage = document.getElementById("unlockMessage");
+
+    const mainMessage = document.getElementById("mainMessage");
     const loginForm = document.getElementById("loginForm");
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
+    const emailInput = document.getElementById("emailInput");
+    const passwordInput = document.getElementById("passwordInput");
     const loginBtn = document.getElementById("loginBtn");
-    const messageBox = document.getElementById("messageBox");
+    const requestAccessBtn = document.getElementById("requestAccessBtn");
+    const createPasswordBtn = document.getElementById("createPasswordBtn");
 
-    function showMessage(text, type) {
-      messageBox.textContent = text;
-      messageBox.className = `message ${type}`;
+    let currentUserData = null;
+    let currentMaintenanceData = null;
+    let bypassUnlocked = sessionStorage.getItem("maintenanceBypassUnlocked") === "true";
+
+    function showMessage(el, text, type) {
+      el.textContent = text;
+      el.className = `message ${type}`;
     }
 
-    function clearMessage() {
-      messageBox.textContent = "";
-      messageBox.className = "message";
+    function clearMessage(el) {
+      el.textContent = "";
+      el.className = "message";
     }
 
-    function normalizeEmail(value) {
-      return value.trim().toLowerCase();
+    function normalizeRole(role) {
+      return String(role || "").trim().toLowerCase();
     }
 
-    function getFriendlyAuthError(errorCode) {
-      switch (errorCode) {
-        case "auth/invalid-email":
-          return "The email address is invalid.";
-        case "auth/missing-password":
-          return "Please enter your password.";
-        case "auth/user-disabled":
-          return "This account has been disabled.";
-        case "auth/user-not-found":
-        case "auth/invalid-credential":
-        case "auth/wrong-password":
-          return "The email or password is incorrect.";
-        case "auth/too-many-requests":
-          return "Too many failed attempts were detected. Please try again later.";
-        default:
-          return "Sign in failed. Please try again.";
+    function userCanSeeUnlock(userData, maintenanceData) {
+      if (!userData || !maintenanceData) return false;
+
+      const normalizedRole = normalizeRole(userData.role);
+      const allowedRoles = Array.isArray(maintenanceData.allowedRolesDuringMaintenance)
+        ? maintenanceData.allowedRolesDuringMaintenance.map(v => normalizeRole(v))
+        : ["admin", "owner"];
+
+      return allowedRoles.includes(normalizedRole) || normalizedRole === "administrator";
+    }
+
+    function hideAllStates() {
+      loadingScreen.classList.add("hidden");
+      maintenanceScreen.classList.add("hidden");
+      mainPage.classList.add("hidden");
+    }
+
+    function renderNormalPage() {
+      hideAllStates();
+      mainPage.classList.remove("hidden");
+      clearMessage(mainMessage);
+    }
+
+    function renderMaintenancePage() {
+      hideAllStates();
+      maintenanceScreen.classList.remove("hidden");
+
+      const message = currentMaintenanceData?.maintenanceMessage?.trim() || "Under Construction";
+      maintenanceTitle.textContent = "Under Construction";
+      maintenanceText.textContent = message;
+      maintenanceStatusText.textContent = "The portal is temporarily unavailable while maintenance is in progress.";
+
+      clearMessage(unlockMessage);
+      unlockCodeInput.value = "";
+
+      if (userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        unlockPanel.classList.remove("hidden");
+      } else {
+        unlockPanel.classList.add("hidden");
       }
     }
 
-    function getDashboardPathByRole(role) {
-      return "dashboard.html";
-    }
-
-    async function handleSuccessfulLogin(userCredential) {
-      const uid = userCredential.user.uid;
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-
-      if (!userSnap.exists()) {
-        await signOut(auth);
-        throw new Error("No portal user record was found for this account.");
+    function applyMaintenanceState() {
+      if (!currentMaintenanceData) {
+        hideAllStates();
+        loadingScreen.classList.remove("hidden");
+        return;
       }
 
-      const userData = userSnap.data();
+      const maintenanceMode = currentMaintenanceData.maintenanceMode === true;
 
-      if ((userData.status || "").toLowerCase() !== "active") {
-        await signOut(auth);
-        throw new Error("This portal account is not active.");
+      if (!maintenanceMode) {
+        sessionStorage.removeItem("maintenanceBypassUnlocked");
+        bypassUnlocked = false;
+        renderNormalPage();
+        return;
       }
 
-      await updateDoc(userRef, {
-        lastLoginAt: serverTimestamp()
-      });
+      if (bypassUnlocked && userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        renderNormalPage();
+        showMessage(mainMessage, "Maintenance bypass active for this session.", "success");
+        return;
+      }
 
-      const redirectPath = getDashboardPathByRole(userData.role);
-      window.location.href = redirectPath;
+      renderMaintenancePage();
     }
+
+    async function loadCurrentUser(firebaseUser) {
+      if (!firebaseUser) {
+        currentUserData = null;
+        applyMaintenanceState();
+        return;
+      }
+
+      try {
+        const userRef = doc(db, "users", firebaseUser.uid);
+        const userSnap = await getDoc(userRef);
+        currentUserData = userSnap.exists() ? userSnap.data() : null;
+      } catch (error) {
+        currentUserData = null;
+      }
+
+      applyMaintenanceState();
+    }
+
+    unlockBtn.addEventListener("click", () => {
+      clearMessage(unlockMessage);
+
+      if (!currentMaintenanceData || currentMaintenanceData.maintenanceMode !== true) {
+        showMessage(unlockMessage, "Maintenance mode is not currently active.", "error");
+        return;
+      }
+
+      if (!userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        showMessage(unlockMessage, "You do not have permission to unlock the portal.", "error");
+        return;
+      }
+
+      const typedCode = unlockCodeInput.value.trim();
+      const actualCode = String(currentMaintenanceData.unlockCode || "").trim();
+
+      if (!typedCode) {
+        showMessage(unlockMessage, "Enter the unlock code.", "error");
+        return;
+      }
+
+      if (typedCode !== actualCode) {
+        showMessage(unlockMessage, "That unlock code is incorrect.", "error");
+        return;
+      }
+
+      bypassUnlocked = true;
+      sessionStorage.setItem("maintenanceBypassUnlocked", "true");
+      applyMaintenanceState();
+    });
+
+    backHomeBtn.addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+
+    requestAccessBtn.addEventListener("click", () => {
+      window.location.href = "signup.html";
+    });
+
+    createPasswordBtn.addEventListener("click", () => {
+      window.location.href = "create-password.html";
+    });
 
     loginForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      clearMessage();
+      clearMessage(mainMessage);
 
-      const email = normalizeEmail(emailInput.value);
+      if (currentMaintenanceData?.maintenanceMode === true && !bypassUnlocked) {
+        applyMaintenanceState();
+        return;
+      }
+
+      const email = emailInput.value.trim();
       const password = passwordInput.value;
 
       if (!email || !password) {
-        showMessage("Please enter your email address and password.", "error");
+        showMessage(mainMessage, "Enter your email and password.", "error");
         return;
       }
 
       loginBtn.disabled = true;
-      loginBtn.textContent = "Signing In...";
+      loginBtn.textContent = "Logging In...";
 
       try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        await handleSuccessfulLogin(userCredential);
-      } catch (error) {
-        console.error("Login error:", error);
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        const userRef = doc(db, "users", credential.user.uid);
+        const userSnap = await getDoc(userRef);
 
-        if (error.code) {
-          showMessage(getFriendlyAuthError(error.code), "error");
-        } else {
-          showMessage(error.message || "An unexpected error occurred during sign in.", "error");
+        if (!userSnap.exists()) {
+          showMessage(mainMessage, "Your portal profile could not be found.", "error");
+          return;
         }
+
+        const userData = userSnap.data();
+
+        if ((userData.status || "").toLowerCase() !== "active") {
+          showMessage(mainMessage, "Your account is inactive.", "error");
+          return;
+        }
+
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        console.error(error);
+        showMessage(mainMessage, "Invalid email or password.", "error");
       } finally {
         loginBtn.disabled = false;
-        loginBtn.textContent = "Sign In";
+        loginBtn.textContent = "Log In";
       }
+    });
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      await loadCurrentUser(firebaseUser);
+    });
+
+    onSnapshot(settingsRef, (snap) => {
+      if (snap.exists()) {
+        currentMaintenanceData = snap.data();
+      } else {
+        currentMaintenanceData = {
+          maintenanceMode: false,
+          maintenanceMessage: "Under Construction",
+          unlockCode: "",
+          allowedRolesDuringMaintenance: ["Admin", "Owner"]
+        };
+      }
+
+      applyMaintenanceState();
+    }, () => {
+      currentMaintenanceData = {
+        maintenanceMode: false,
+        maintenanceMessage: "Under Construction",
+        unlockCode: "",
+        allowedRolesDuringMaintenance: ["Admin", "Owner"]
+      };
+      applyMaintenanceState();
     });
   </script>
 </body>
