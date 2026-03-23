@@ -3,110 +3,607 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Employee System</title>
-
+  <title>Company Discipline Portal</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      background: linear-gradient(135deg, #eff6ff, #f8fafc);
+      color: #111827;
+      min-height: 100vh;
+    }
+
+    .page-shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hero {
+      padding: 70px 24px 30px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: 42px;
+      color: #0f172a;
+    }
+
+    .hero p {
+      margin: 0 auto;
+      max-width: 760px;
+      color: #475569;
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .main-wrap {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 22px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 22px;
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+      padding: 26px;
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 25px;
+      color: #111827;
+    }
+
+    .card-subtitle {
+      margin: 0 0 20px;
+      color: #6b7280;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .feature-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: #f8fafc;
+    }
+
+    .feature-item-title {
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #111827;
+    }
+
+    .feature-item-text {
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .cta-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .cta-btn {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 15px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .cta-btn.primary {
+      background: #2563eb;
       color: white;
+    }
+
+    .cta-btn.secondary {
+      background: #e5edff;
+      color: #1d4ed8;
+    }
+
+    .cta-btn.ghost {
+      background: #f8fafc;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+
+    .small-note {
+      margin-top: 14px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .message {
+      display: none;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .loading-screen,
+    .maintenance-screen {
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      padding: 24px;
     }
 
-    .container {
-      text-align: center;
-      background: rgba(255, 255, 255, 0.08);
-      padding: 40px;
-      border-radius: 16px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      width: 90%;
-      max-width: 500px;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-      font-size: 32px;
-    }
-
-    p {
-      margin-bottom: 30px;
-      color: #dbeafe;
-    }
-
-    .btn {
-      display: block;
+    .loading-box,
+    .maintenance-box {
       width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .signup {
+      max-width: 620px;
       background: white;
-      color: #1e3a8a;
+      border-radius: 24px;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.12);
+      padding: 34px 28px;
+      text-align: center;
     }
 
-    .signup:hover {
-      background: #e0e7ff;
+    .loading-box h2,
+    .maintenance-box h1 {
+      margin: 0 0 12px;
+      color: #111827;
     }
 
-    .login {
-      background: transparent;
-      border: 2px solid white;
-      color: white;
+    .loading-box p,
+    .maintenance-box p {
+      margin: 0;
+      color: #6b7280;
+      line-height: 1.7;
     }
 
-    .login:hover {
-      background: rgba(255,255,255,0.15);
+    .maintenance-box h1 {
+      font-size: 38px;
     }
 
-    .footer {
-      margin-top: 20px;
-      font-size: 13px;
-      color: #c7d2fe;
+    .maintenance-status {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #475569;
+    }
+
+    .unlock-panel {
+      margin-top: 24px;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .unlock-panel h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: #111827;
+    }
+
+    .unlock-panel p {
+      margin: 0 0 14px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .field-group {
+      margin-bottom: 14px;
+    }
+
+    .field-group label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 14px;
+    }
+
+    .field-group input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      font-family: Arial, sans-serif;
+    }
+
+    .field-group input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+
+    .unlock-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .main-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 34px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero {
+        padding: 50px 18px 24px;
+      }
+
+      .main-wrap {
+        padding: 0 16px 28px;
+      }
+
+      .card,
+      .loading-box,
+      .maintenance-box {
+        padding: 22px;
+      }
+
+      .maintenance-box h1 {
+        font-size: 30px;
+      }
     }
   </style>
 </head>
 <body>
-
-  <div class="container">
-    <h1>Employee Portal</h1>
-    <p>
-      Access your employee account, view records, and manage requests through the official system.
-    </p>
-
-    <button class="btn signup" onclick="goToSignup()">
-      Request Access
-    </button>
-
-    <button class="btn login" onclick="goToLogin()">
-      Sign In
-    </button>
-
-    <div class="footer">
-      Access requires manager approval.
+  <div id="loadingScreen" class="loading-screen">
+    <div class="loading-box">
+      <h2>Loading Portal</h2>
+      <p>Please wait while the portal checks system availability.</p>
     </div>
   </div>
 
-  <script>
-    function goToSignup() {
+  <div id="maintenanceScreen" class="maintenance-screen hidden">
+    <div class="maintenance-box">
+      <h1 id="maintenanceTitle">Under Construction</h1>
+      <p id="maintenanceText">This portal is currently unavailable while maintenance is being performed.</p>
+      <div class="maintenance-status" id="maintenanceStatusText">Please check back later.</div>
+
+      <div id="unlockPanel" class="unlock-panel hidden">
+        <h3>Admin / Owner Unlock</h3>
+        <p>Enter the unlock code to temporarily bypass maintenance mode on this device.</p>
+
+        <div id="unlockMessage" class="message"></div>
+
+        <div class="field-group">
+          <label for="unlockCodeInput">Unlock Code</label>
+          <input type="password" id="unlockCodeInput" maxlength="100" placeholder="Enter unlock code" />
+        </div>
+
+        <div class="unlock-actions">
+          <button id="unlockBtn" class="cta-btn primary" type="button">Unlock Portal</button>
+          <button id="goLoginBtn" class="cta-btn ghost" type="button">Go to Login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="mainPage" class="page-shell hidden">
+    <section class="hero">
+      <h1>Company Discipline Portal</h1>
+      <p>
+        Manage access requests, employee records, discipline tracking, and appeals in one centralized portal.
+      </p>
+    </section>
+
+    <main class="main-wrap">
+      <section class="card">
+        <h2>Portal Overview</h2>
+        <p class="card-subtitle">
+          This portal is designed for employees, managers, admins, and owners to handle access, accountability, and discipline workflows.
+        </p>
+
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="feature-item-title">Employee Access Requests</div>
+            <div class="feature-item-text">Employees can request access using their Employee ID and department information.</div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-item-title">Discipline Tracking</div>
+            <div class="feature-item-text">Managers and higher can issue, review, and later edit write-ups as the system grows.</div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-item-title">Appeal Workflow</div>
+            <div class="feature-item-text">Employees can appeal write-ups and management can review those appeals inside the portal.</div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-item-title">Administrative Controls</div>
+            <div class="feature-item-text">Owners and admins can manage employees, signups, approvals, and maintenance controls.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Get Started</h2>
+        <p class="card-subtitle">
+          Choose the action that matches what you need to do.
+        </p>
+
+        <div id="mainMessage" class="message"></div>
+
+        <div class="cta-grid">
+          <button id="loginBtn" class="cta-btn primary" type="button">Log In</button>
+          <button id="signupBtn" class="cta-btn secondary" type="button">Request Access</button>
+          <button id="createPasswordBtn" class="cta-btn ghost" type="button">Create Password</button>
+        </div>
+
+        <div class="small-note">
+          Employees should request access first, wait for approval, and then create a password when instructed.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDE0nhogdC9LHPEhSlUF1AqnXmwPU64cXg",
+      authDomain: "company-discipline-portal.firebaseapp.com",
+      projectId: "company-discipline-portal",
+      storageBucket: "company-discipline-portal.firebasestorage.app",
+      messagingSenderId: "991390225414",
+      appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const settingsRef = doc(db, "systemSettings", "portal");
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const maintenanceScreen = document.getElementById("maintenanceScreen");
+    const mainPage = document.getElementById("mainPage");
+
+    const maintenanceTitle = document.getElementById("maintenanceTitle");
+    const maintenanceText = document.getElementById("maintenanceText");
+    const maintenanceStatusText = document.getElementById("maintenanceStatusText");
+    const unlockPanel = document.getElementById("unlockPanel");
+    const unlockCodeInput = document.getElementById("unlockCodeInput");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const goLoginBtn = document.getElementById("goLoginBtn");
+    const unlockMessage = document.getElementById("unlockMessage");
+
+    const mainMessage = document.getElementById("mainMessage");
+    const loginBtn = document.getElementById("loginBtn");
+    const signupBtn = document.getElementById("signupBtn");
+    const createPasswordBtn = document.getElementById("createPasswordBtn");
+
+    let currentUserData = null;
+    let currentMaintenanceData = null;
+    let bypassUnlocked = sessionStorage.getItem("maintenanceBypassUnlocked") === "true";
+
+    function showMessage(el, text, type) {
+      el.textContent = text;
+      el.className = `message ${type}`;
+    }
+
+    function clearMessage(el) {
+      el.textContent = "";
+      el.className = "message";
+    }
+
+    function normalizeRole(role) {
+      return String(role || "").trim().toLowerCase();
+    }
+
+    function userCanSeeUnlock(userData, maintenanceData) {
+      if (!userData || !maintenanceData) return false;
+
+      const role = userData.role || "";
+      const normalizedRole = normalizeRole(role);
+
+      const allowedRoles = Array.isArray(maintenanceData.allowedRolesDuringMaintenance)
+        ? maintenanceData.allowedRolesDuringMaintenance.map(v => normalizeRole(v))
+        : ["admin", "owner"];
+
+      return allowedRoles.includes(normalizedRole) || normalizedRole === "administrator";
+    }
+
+    function hideAllStates() {
+      loadingScreen.classList.add("hidden");
+      maintenanceScreen.classList.add("hidden");
+      mainPage.classList.add("hidden");
+    }
+
+    function renderNormalPage() {
+      hideAllStates();
+      mainPage.classList.remove("hidden");
+      clearMessage(mainMessage);
+    }
+
+    function renderMaintenancePage() {
+      hideAllStates();
+      maintenanceScreen.classList.remove("hidden");
+
+      const message = currentMaintenanceData?.maintenanceMessage?.trim() || "Under Construction";
+      maintenanceTitle.textContent = "Under Construction";
+      maintenanceText.textContent = message;
+      maintenanceStatusText.textContent = "The portal is temporarily unavailable while maintenance is in progress.";
+
+      clearMessage(unlockMessage);
+      unlockCodeInput.value = "";
+
+      if (userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        unlockPanel.classList.remove("hidden");
+      } else {
+        unlockPanel.classList.add("hidden");
+      }
+    }
+
+    function applyMaintenanceState() {
+      if (!currentMaintenanceData) {
+        hideAllStates();
+        loadingScreen.classList.remove("hidden");
+        return;
+      }
+
+      const maintenanceMode = currentMaintenanceData.maintenanceMode === true;
+
+      if (!maintenanceMode) {
+        sessionStorage.removeItem("maintenanceBypassUnlocked");
+        bypassUnlocked = false;
+        renderNormalPage();
+        return;
+      }
+
+      if (bypassUnlocked && userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        renderNormalPage();
+        showMessage(mainMessage, "Maintenance bypass active for this session.", "success");
+        return;
+      }
+
+      renderMaintenancePage();
+    }
+
+    async function loadCurrentUser(firebaseUser) {
+      if (!firebaseUser) {
+        currentUserData = null;
+        applyMaintenanceState();
+        return;
+      }
+
+      try {
+        const userRef = doc(db, "users", firebaseUser.uid);
+        const userSnap = await getDoc(userRef);
+        currentUserData = userSnap.exists() ? userSnap.data() : null;
+      } catch (error) {
+        currentUserData = null;
+      }
+
+      applyMaintenanceState();
+    }
+
+    unlockBtn.addEventListener("click", () => {
+      clearMessage(unlockMessage);
+
+      if (!currentMaintenanceData || currentMaintenanceData.maintenanceMode !== true) {
+        showMessage(unlockMessage, "Maintenance mode is not currently active.", "error");
+        return;
+      }
+
+      if (!userCanSeeUnlock(currentUserData, currentMaintenanceData)) {
+        showMessage(unlockMessage, "You do not have permission to unlock the portal.", "error");
+        return;
+      }
+
+      const typedCode = unlockCodeInput.value.trim();
+      const actualCode = String(currentMaintenanceData.unlockCode || "").trim();
+
+      if (!typedCode) {
+        showMessage(unlockMessage, "Enter the unlock code.", "error");
+        return;
+      }
+
+      if (typedCode !== actualCode) {
+        showMessage(unlockMessage, "That unlock code is incorrect.", "error");
+        return;
+      }
+
+      bypassUnlocked = true;
+      sessionStorage.setItem("maintenanceBypassUnlocked", "true");
+      applyMaintenanceState();
+    });
+
+    goLoginBtn.addEventListener("click", () => {
+      window.location.href = "login.html";
+    });
+
+    loginBtn.addEventListener("click", () => {
+      window.location.href = "login.html";
+    });
+
+    signupBtn.addEventListener("click", () => {
       window.location.href = "signup.html";
-    }
+    });
 
-    function goToLogin() {
-      window.location.href = "login.html"; // we will build this next
-    }
+    createPasswordBtn.addEventListener("click", () => {
+      window.location.href = "create-password.html";
+    });
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      await loadCurrentUser(firebaseUser);
+    });
+
+    onSnapshot(settingsRef, (snap) => {
+      if (snap.exists()) {
+        currentMaintenanceData = snap.data();
+      } else {
+        currentMaintenanceData = {
+          maintenanceMode: false,
+          maintenanceMessage: "Under Construction",
+          unlockCode: "",
+          allowedRolesDuringMaintenance: ["Admin", "Owner"]
+        };
+      }
+
+      applyMaintenanceState();
+    }, () => {
+      currentMaintenanceData = {
+        maintenanceMode: false,
+        maintenanceMessage: "Under Construction",
+        unlockCode: "",
+        allowedRolesDuringMaintenance: ["Admin", "Owner"]
+      };
+      applyMaintenanceState();
+    });
   </script>
-
 </body>
 </html>
