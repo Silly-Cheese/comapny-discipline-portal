@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maintenance Mode Control</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #111827;
+    }
+    .topbar {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: white;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .topbar h1 { margin: 0; font-size: 26px; }
+    .topbar p { margin: 6px 0 0; color: #dbeafe; font-size: 14px; }
+    .topbar-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .topbar-btn {
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .topbar-btn.primary { background: white; color: #1d4ed8; }
+    .topbar-btn.secondary {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+    .card-subtitle {
+      margin: 0 0 20px;
+      color: #6b7280;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .message {
+      display: none;
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .field-group { margin-bottom: 16px; }
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: 700;
+      color: #1f2937;
+      font-size: 14px;
+    }
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      font-family: Arial, sans-serif;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn.primary { background: #2563eb; color: white; }
+    .btn.success { background: #16a34a; color: white; }
+    .btn.danger { background: #dc2626; color: white; }
+    .btn.secondary { background: #e5edff; color: #1d4ed8; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .status-box {
+      border: 1px solid #e5e7eb;
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .status-line {
+      margin-bottom: 10px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e5edff;
+      color: #1d4ed8;
+    }
+    .pill.success { background: #dcfce7; color: #166534; }
+    .pill.danger { background: #fee2e2; color: #991b1b; }
+    .small-note {
+      margin-top: 10px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .hidden { display: none !important; }
+    .loading-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #f3f6fb;
+      color: #374151;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    @media (max-width: 780px) {
+      .grid { grid-template-columns: 1fr; }
+      .container { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingScreen" class="loading-screen">Loading maintenance controls...</div>
+
+  <div id="app" class="hidden">
+    <div class="topbar">
+      <div>
+        <h1>Maintenance Mode</h1>
+        <p>Turn maintenance mode on or off and control the unlock code.</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="dashboardBtn" class="topbar-btn secondary">Back to Dashboard</button>
+        <button id="logoutBtn" class="topbar-btn primary">Log Out</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <div id="messageBox" class="message"></div>
+
+      <div class="card">
+        <h2>Current Status</h2>
+        <p class="card-subtitle">This reflects the current system-wide maintenance setting in Firestore.</p>
+        <div class="status-box">
+          <div class="status-line"><strong>Mode:</strong> <span id="maintenanceState">—</span></div>
+          <div class="status-line"><strong>Message:</strong> <span id="maintenanceMessageText">—</span></div>
+          <div class="status-line"><strong>Allowed Roles:</strong> <span id="allowedRolesText">—</span></div>
+          <div class="status-line"><strong>Enabled By:</strong> <span id="enabledByText">—</span></div>
+          <div class="status-line"><strong>Last Updated:</strong> <span id="updatedAtText">—</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Update Maintenance Settings</h2>
+        <p class="card-subtitle">Admins and Owners can enable maintenance mode and set the unlock code used for bypass access.</p>
+
+        <div class="grid">
+          <div class="field-group">
+            <label for="maintenanceModeSelect">Maintenance Mode</label>
+            <select id="maintenanceModeSelect">
+              <option value="false">Disabled</option>
+              <option value="true">Enabled</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label for="unlockCodeInput">Unlock Code</label>
+            <input type="text" id="unlockCodeInput" maxlength="100" placeholder="Set an unlock code" />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="maintenanceMessageInput">Maintenance Message</label>
+          <textarea id="maintenanceMessageInput" placeholder="Under Construction"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="allowedRolesInput">Allowed Roles During Maintenance</label>
+          <input type="text" id="allowedRolesInput" placeholder="Admin, Owner" />
+          <div class="small-note">Enter a comma-separated list. Example: Admin, Owner</div>
+        </div>
+
+        <div class="btn-row">
+          <button id="saveSettingsBtn" class="btn primary">Save Settings</button>
+          <button id="enableMaintenanceBtn" class="btn danger">Enable Maintenance</button>
+          <button id="disableMaintenanceBtn" class="btn success">Disable Maintenance</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      updateDoc,
+      serverTimestamp,
+      onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDE0nhogdC9LHPEhSlUF1AqnXmwPU64cXg",
+      authDomain: "company-discipline-portal.firebaseapp.com",
+      projectId: "company-discipline-portal",
+      storageBucket: "company-discipline-portal.firebasestorage.app",
+      messagingSenderId: "991390225414",
+      appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const settingsRef = doc(db, "systemSettings", "portal");
+
+    const loadingScreen = document.getElementById("loadingScreen");
+    const appEl = document.getElementById("app");
+    const messageBox = document.getElementById("messageBox");
+
+    const dashboardBtn = document.getElementById("dashboardBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const maintenanceState = document.getElementById("maintenanceState");
+    const maintenanceMessageText = document.getElementById("maintenanceMessageText");
+    const allowedRolesText = document.getElementById("allowedRolesText");
+    const enabledByText = document.getElementById("enabledByText");
+    const updatedAtText = document.getElementById("updatedAtText");
+
+    const maintenanceModeSelect = document.getElementById("maintenanceModeSelect");
+    const unlockCodeInput = document.getElementById("unlockCodeInput");
+    const maintenanceMessageInput = document.getElementById("maintenanceMessageInput");
+    const allowedRolesInput = document.getElementById("allowedRolesInput");
+
+    const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+    const enableMaintenanceBtn = document.getElementById("enableMaintenanceBtn");
+    const disableMaintenanceBtn = document.getElementById("disableMaintenanceBtn");
+
+    let currentPortalUser = null;
+
+    function showMessage(text, type) {
+      messageBox.textContent = text;
+      messageBox.className = `message ${type}`;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function clearMessage() {
+      messageBox.textContent = "";
+      messageBox.className = "message";
+    }
+
+    function normalizeRole(role) {
+      return String(role || "").trim().toLowerCase();
+    }
+
+    function hasMaintenanceAccess(userData) {
+      const role = normalizeRole(userData.role);
+      return role === "admin" || role === "owner" || role === "administrator";
+    }
+
+    function formatTimestamp(value) {
+      if (!value) return "—";
+      try {
+        if (typeof value.toDate === "function") {
+          return value.toDate().toLocaleString();
+        }
+        return new Date(value).toLocaleString();
+      } catch {
+        return "—";
+      }
+    }
+
+    function parseRoles(input) {
+      return String(input || "")
+        .split(",")
+        .map(v => v.trim())
+        .filter(Boolean);
+    }
+
+    function renderSettings(data) {
+      const enabled = data.maintenanceMode === true;
+      maintenanceState.innerHTML = enabled
+        ? '<span class="pill danger">Enabled</span>'
+        : '<span class="pill success">Disabled</span>';
+      maintenanceMessageText.textContent = data.maintenanceMessage || "—";
+      allowedRolesText.textContent = Array.isArray(data.allowedRolesDuringMaintenance) && data.allowedRolesDuringMaintenance.length
+        ? data.allowedRolesDuringMaintenance.join(", ")
+        : "—";
+      enabledByText.textContent = data.enabledByUsername || data.enabledByUid || "—";
+      updatedAtText.textContent = formatTimestamp(data.updatedAt || data.enabledAt);
+
+      maintenanceModeSelect.value = enabled ? "true" : "false";
+      unlockCodeInput.value = data.unlockCode || "";
+      maintenanceMessageInput.value = data.maintenanceMessage || "Under Construction";
+      allowedRolesInput.value = Array.isArray(data.allowedRolesDuringMaintenance)
+        ? data.allowedRolesDuringMaintenance.join(", ")
+        : "Admin, Owner";
+    }
+
+    async function ensureSettingsDocument() {
+      const snap = await getDoc(settingsRef);
+      if (!snap.exists()) {
+        await setDoc(settingsRef, {
+          maintenanceMode: false,
+          maintenanceMessage: "Under Construction",
+          unlockCode: "",
+          enabledByUid: "",
+          enabledByUsername: "",
+          enabledAt: null,
+          updatedAt: serverTimestamp(),
+          allowedRolesDuringMaintenance: ["Admin", "Owner"]
+        });
+      }
+    }
+
+    async function loadPortalUser(firebaseUser) {
+      const userRef = doc(db, "users", firebaseUser.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      const userData = userSnap.data();
+      if ((userData.status || "").toLowerCase() !== "active") {
+        await signOut(auth);
+        window.location.href = "login.html";
+        return null;
+      }
+
+      if (!hasMaintenanceAccess(userData)) {
+        showMessage("You do not have permission to manage maintenance mode.", "error");
+        saveSettingsBtn.disabled = true;
+        enableMaintenanceBtn.disabled = true;
+        disableMaintenanceBtn.disabled = true;
+      }
+
+      return userData;
+    }
+
+    async function saveMaintenanceSettings(forceMode = null) {
+      if (!currentPortalUser || !hasMaintenanceAccess(currentPortalUser)) {
+        throw new Error("You do not have permission to update maintenance mode.");
+      }
+
+      const mode = forceMode !== null
+        ? forceMode
+        : maintenanceModeSelect.value === "true";
+      const unlockCode = unlockCodeInput.value.trim();
+      const maintenanceMessage = maintenanceMessageInput.value.trim() || "Under Construction";
+      const allowedRoles = parseRoles(allowedRolesInput.value);
+
+      if (mode && !unlockCode) {
+        throw new Error("An unlock code is required when maintenance mode is enabled.");
+      }
+
+      const payload = {
+        maintenanceMode: mode,
+        maintenanceMessage,
+        unlockCode: mode ? unlockCode : "",
+        enabledByUid: mode ? (auth.currentUser?.uid || "") : "",
+        enabledByUsername: mode ? (currentPortalUser.username || "") : "",
+        enabledAt: mode ? serverTimestamp() : null,
+        updatedAt: serverTimestamp(),
+        allowedRolesDuringMaintenance: allowedRoles.length ? allowedRoles : ["Admin", "Owner"]
+      };
+
+      await updateDoc(settingsRef, payload);
+    }
+
+    saveSettingsBtn.addEventListener("click", async () => {
+      clearMessage();
+      saveSettingsBtn.disabled = true;
+      saveSettingsBtn.textContent = "Saving...";
+      try {
+        await saveMaintenanceSettings(null);
+        showMessage("Maintenance settings saved successfully.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Could not save maintenance settings.", "error");
+      } finally {
+        saveSettingsBtn.disabled = false;
+        saveSettingsBtn.textContent = "Save Settings";
+      }
+    });
+
+    enableMaintenanceBtn.addEventListener("click", async () => {
+      clearMessage();
+      enableMaintenanceBtn.disabled = true;
+      enableMaintenanceBtn.textContent = "Enabling...";
+      try {
+        await saveMaintenanceSettings(true);
+        showMessage("Maintenance mode enabled.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Could not enable maintenance mode.", "error");
+      } finally {
+        enableMaintenanceBtn.disabled = false;
+        enableMaintenanceBtn.textContent = "Enable Maintenance";
+      }
+    });
+
+    disableMaintenanceBtn.addEventListener("click", async () => {
+      clearMessage();
+      disableMaintenanceBtn.disabled = true;
+      disableMaintenanceBtn.textContent = "Disabling...";
+      try {
+        await saveMaintenanceSettings(false);
+        showMessage("Maintenance mode disabled.", "success");
+      } catch (error) {
+        console.error(error);
+        showMessage(error.message || "Could not disable maintenance mode.", "error");
+      } finally {
+        disableMaintenanceBtn.disabled = false;
+        disableMaintenanceBtn.textContent = "Disable Maintenance";
+      }
+    });
+
+    dashboardBtn.addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error(error);
+        showMessage("Could not log out right now.", "error");
+      }
+    });
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      try {
+        currentPortalUser = await loadPortalUser(firebaseUser);
+        if (!currentPortalUser) return;
+
+        await ensureSettingsDocument();
+
+        onSnapshot(settingsRef, (snap) => {
+          if (snap.exists()) {
+            renderSettings(snap.data());
+          }
+        });
+
+        loadingScreen.classList.add("hidden");
+        appEl.classList.remove("hidden");
+      } catch (error) {
+        console.error(error);
+        loadingScreen.textContent = "Failed to load maintenance controls.";
+      }
+    });
+  </script>
+</body>
+</html>
