@@ -12,103 +12,34 @@
     <section class="public-hero">
       <div class="brand"><span class="brand-mark">B</span><span>Bloxion<small>Employee Portal</small></span></div>
       <div class="hero-copy">
-        <div class="eyebrow">Secure employee access</div>
+        <div class="eyebrow">Employee access</div>
         <h1>Welcome back.</h1>
-        <p>Sign in using your Bloxion Employee ID, the email connected to your employee record, and your Firebase password.</p>
+        <p>Sign in with your Bloxion Employee ID, work email, and password.</p>
       </div>
       <div class="help">First time here? <a href="activate-account.html">Activate your account</a>.</div>
     </section>
-
     <section class="public-panel">
       <div class="auth-card">
         <div class="eyebrow">Employee sign in</div>
         <h2>Access Bloxion</h2>
-        <p class="subtitle">All three values must match the employee account already linked to Bloxion.</p>
+        <p class="subtitle">Use the same Employee ID and email connected to your Bloxion account.</p>
         <div id="message" class="message"></div>
         <form id="loginForm">
           <div class="field"><label for="employeeId">Employee ID</label><input id="employeeId" type="text" maxlength="40" required autocomplete="off" /></div>
           <div class="field"><label for="email">Email address</label><input id="email" type="email" maxlength="160" required autocomplete="username" /></div>
           <div class="field"><label for="password">Password</label><input id="password" type="password" required autocomplete="current-password" /></div>
-          <div class="btn-row">
-            <button id="loginBtn" class="btn primary full" type="submit">Sign In</button>
-            <button id="activateBtn" class="btn secondary full" type="button">Activate Account</button>
-            <button id="homeBtn" class="btn ghost full" type="button">Back to Portal</button>
-          </div>
+          <div class="btn-row"><button id="loginBtn" class="btn primary full" type="submit">Sign In</button><button id="activateBtn" class="btn secondary full" type="button">Activate Account</button><button id="homeBtn" class="btn ghost full" type="button">Back to Portal</button></div>
         </form>
       </div>
     </section>
   </main>
-
   <script type="module">
     import { signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { auth, db, normalize, normalizeEmail, normalizeRole, showMessage, clearMessage } from "./bloxion-core.js";
-
-    const form = document.getElementById("loginForm");
-    const message = document.getElementById("message");
-    const loginBtn = document.getElementById("loginBtn");
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      clearMessage(message);
-      const employeeId = normalize(document.getElementById("employeeId").value);
-      const email = normalizeEmail(document.getElementById("email").value);
-      const password = document.getElementById("password").value;
-      if (!employeeId || !email || !password) return showMessage(message, "Enter your Employee ID, email, and password.", "error");
-
-      loginBtn.disabled = true;
-      loginBtn.textContent = "Signing in…";
-      try {
-        const credential = await signInWithEmailAndPassword(auth, email, password);
-        const profileSnap = await getDoc(doc(db, "users", credential.user.uid));
-        if (!profileSnap.exists()) {
-          if (credential.user.emailVerified) {
-            localStorage.setItem("bloxionActivationEmployeeId", employeeId);
-            localStorage.setItem("bloxionActivationEmail", email);
-            location.href = "activate-account.html";
-            return;
-          }
-          await signOut(auth);
-          throw new Error("This Firebase account has not been linked to Bloxion yet. Use Activate Account and verify your email first.");
-        }
-
-        const profile = profileSnap.data();
-        if (normalize(profile.employeeId) !== employeeId || normalizeEmail(profile.email) !== email) {
-          await signOut(auth);
-          throw new Error("The Employee ID or email does not match this Bloxion account.");
-        }
-        if (normalizeRole(profile.status) !== "active") {
-          await signOut(auth);
-          throw new Error("This portal account is inactive.");
-        }
-
-        const employeeSnap = await getDoc(doc(db, "employees", employeeId));
-        if (!employeeSnap.exists()) {
-          await signOut(auth);
-          throw new Error("Your Bloxion employee record could not be found.");
-        }
-        const employee = employeeSnap.data();
-        const employmentStatus = normalizeRole(employee.status || employee.employmentStatus || "active");
-        if (employmentStatus !== "active" || employee.portalAccess === false) {
-          await signOut(auth);
-          throw new Error("Bloxion portal access is disabled for this employee record.");
-        }
-
-        location.href = "dashboard.html";
-      } catch (error) {
-        console.error("Login error:", error);
-        const text = ["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found"].includes(error.code)
-          ? "The email or password is incorrect."
-          : error.message || "Sign in failed.";
-        showMessage(message, text, "error");
-      } finally {
-        loginBtn.disabled = false;
-        loginBtn.textContent = "Sign In";
-      }
-    });
-
-    document.getElementById("activateBtn").addEventListener("click", () => location.href = "activate-account.html");
-    document.getElementById("homeBtn").addEventListener("click", () => location.href = "index.html");
+    const form=document.getElementById("loginForm"),message=document.getElementById("message"),loginBtn=document.getElementById("loginBtn");
+    form.addEventListener("submit",async event=>{event.preventDefault();clearMessage(message);const employeeId=normalize(document.getElementById("employeeId").value),email=normalizeEmail(document.getElementById("email").value),password=document.getElementById("password").value;if(!employeeId||!email||!password)return showMessage(message,"Enter your Employee ID, email, and password.","error");loginBtn.disabled=true;loginBtn.textContent="Signing in…";try{const credential=await signInWithEmailAndPassword(auth,email,password),profileSnap=await getDoc(doc(db,"users",credential.user.uid));if(!profileSnap.exists()){if(credential.user.emailVerified){localStorage.setItem("bloxionActivationEmployeeId",employeeId);localStorage.setItem("bloxionActivationEmail",email);location.href="activate-account.html";return}await signOut(auth);throw new Error("This account has not been activated yet. Use Activate Account and verify your email first.")}const profile=profileSnap.data();if(normalize(profile.employeeId)!==employeeId||normalizeEmail(profile.email)!==email){await signOut(auth);throw new Error("The Employee ID or email does not match this Bloxion account.")}if(normalizeRole(profile.status)!=="active"){await signOut(auth);throw new Error("This portal account is inactive.")}const employeeSnap=await getDoc(doc(db,"employees",employeeId));if(!employeeSnap.exists()){await signOut(auth);throw new Error("Your Bloxion employee record could not be found.")}const employee=employeeSnap.data(),employmentStatus=normalizeRole(employee.status||employee.employmentStatus||"active");if(employmentStatus!=="active"||employee.portalAccess===false){await signOut(auth);throw new Error("Portal access is disabled for this employee account.")}location.href="dashboard.html"}catch(error){console.error("Login error:",error);const text=["auth/invalid-credential","auth/wrong-password","auth/user-not-found"].includes(error.code)?"The email or password is incorrect.":error.message||"Sign in failed.";showMessage(message,text,"error")}finally{loginBtn.disabled=false;loginBtn.textContent="Sign In"}});
+    document.getElementById("activateBtn").addEventListener("click",()=>location.href="activate-account.html");document.getElementById("homeBtn").addEventListener("click",()=>location.href="index.html");
   </script>
 </body>
 </html>

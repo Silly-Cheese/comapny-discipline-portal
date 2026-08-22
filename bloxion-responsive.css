@@ -1,4 +1,4 @@
-/* Bloxion Employee Portal — Phase 4 production polish */
+/* Bloxion Employee Portal */
 :focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 html{scroll-behavior:smooth}
 body{overflow-x:hidden}
