@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="bloxion.css">
 </head>
 <body>
-<div id="loading" class="loading">Loading employee management…</div>
+<div id="loading" class="loading">Loading employee directory…</div>
 <div id="app" class="app-shell hidden">
   <aside class="sidebar">
     <div class="brand"><span class="brand-mark">B</span><span>Bloxion<small>Employee Portal</small></span></div>
@@ -23,24 +23,21 @@
   </aside>
   <main class="main">
     <header class="topbar">
-      <div><h1>Employee Directory</h1><p>Authoritative Bloxion employee, access, and personnel-workflow records.</p></div>
+      <div><h1>Employee Directory</h1><p>Search employee profiles, access settings, and work history.</p></div>
       <button id="logoutBtn" class="btn ghost">Log Out</button>
     </header>
     <div class="content">
       <div id="message" class="message"></div>
       <section class="card">
         <h3>Find an employee</h3>
-        <p class="card-subtitle">Search by part of a name, username, Employee ID, email, position, or department. You do not need the exact spelling or full value. Managers remain limited to employees in their own department.</p>
+        <p class="card-subtitle">Search by part of a name, username, Employee ID, email, position, or department. Managers can search within their department; administrators can search across Bloxion.</p>
         <div class="form-grid">
           <div class="field">
             <label for="lookup">Employee search</label>
-            <input id="lookup" maxlength="160" autocomplete="off" placeholder="Try: Chris, Shelley, BLX-00, moderator…">
-            <div class="help">Type at least 2 characters. Results are ranked with exact and beginning-of-name matches first.</div>
+            <input id="lookup" maxlength="160" autocomplete="off" placeholder="Try: Jordan, BLX-00, moderator…">
+            <div class="help">Type at least 2 characters. The closest matches will appear first.</div>
           </div>
-          <div class="field">
-            <label>&nbsp;</label>
-            <button id="searchBtn" class="btn primary full" type="button">Search Directory</button>
-          </div>
+          <div class="field"><label>&nbsp;</label><button id="searchBtn" class="btn primary full" type="button">Search Directory</button></div>
         </div>
         <div id="searchMeta" class="help" aria-live="polite"></div>
         <div id="searchResults" class="list hidden" style="margin-top:12px"></div>
@@ -48,10 +45,10 @@
 
       <section id="employeeSection" class="hidden">
         <div class="grid" style="margin-top:16px">
-          <article class="card span-5"><h3>Employee record</h3><div id="summary" class="detail-grid"></div></article>
+          <article class="card span-5"><h3>Employee profile</h3><div id="summary" class="detail-grid"></div></article>
           <article class="card span-7">
             <h3>Employment & access</h3>
-            <p class="card-subtitle">Linked accounts are synchronized with this record so disabled access and security changes take effect consistently.</p>
+            <p class="card-subtitle">Update the employee's work information, employment status, and portal access.</p>
             <div class="form-grid">
               <div class="field"><label for="username">Display name / username</label><input id="username" maxlength="80"></div>
               <div class="field"><label for="email">Email</label><input id="email" type="email" maxlength="160"><div id="emailHelp" class="help"></div></div>
@@ -62,15 +59,15 @@
             </div>
             <div id="securityFields">
               <div class="divider"></div>
-              <div class="eyebrow">Administrator security fields</div>
+              <div class="eyebrow">Permissions</div>
               <div class="form-grid" style="margin-top:12px">
                 <div class="field"><label for="role">Portal role</label><select id="role"><option>Employee</option><option>Manager</option><option>Admin</option><option>Owner</option></select></div>
                 <div class="field"><label for="departmentId">Department ID</label><input id="departmentId" maxlength="60"></div>
                 <div class="field"><label for="departmentName">Department name</label><input id="departmentName" maxlength="100"></div>
               </div>
               <div class="detail-grid">
-                <label class="detail-box"><input id="pEmployeesView" type="checkbox"> Employees view</label>
-                <label class="detail-box"><input id="pEmployeesManage" type="checkbox"> Employees manage</label>
+                <label class="detail-box"><input id="pEmployeesView" type="checkbox"> View employees</label>
+                <label class="detail-box"><input id="pEmployeesManage" type="checkbox"> Manage employees</label>
                 <label class="detail-box"><input id="pCross" type="checkbox"> Cross-department access</label>
                 <label class="detail-box"><input id="pDiscipline" type="checkbox"> Issue discipline</label>
                 <label class="detail-box"><input id="pAppeals" type="checkbox"> Review discipline appeals</label>
@@ -80,10 +77,7 @@
                 <label class="detail-box"><input id="pSystem" type="checkbox"> System administrator</label>
               </div>
             </div>
-            <div class="btn-row" style="margin-top:16px">
-              <button id="saveBtn" class="btn primary" type="button">Save Changes</button>
-              <button id="disableBtn" class="btn warning" type="button">Disable Portal Access</button>
-            </div>
+            <div class="btn-row" style="margin-top:16px"><button id="saveBtn" class="btn primary" type="button">Save Changes</button><button id="disableBtn" class="btn warning" type="button">Disable Portal Access</button></div>
           </article>
           <article class="card span-6"><h3>Discipline history</h3><div id="writeups" class="list"></div><div id="writeupsEmpty" class="empty">No discipline records found.</div></article>
           <article class="card span-6"><h3>Appeal history</h3><div id="appeals" class="list"></div><div id="appealsEmpty" class="empty">No appeals found.</div></article>
@@ -94,121 +88,31 @@
     </div>
   </main>
 </div>
-
 <script type="module">
 import{onAuthStateChanged,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{collection,doc,getDoc,getDocs,limit,query,serverTimestamp,where,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import{auth,db,loadOwnProfile,isManagement,canManageEmployees,isSystemAdmin,canCrossDepartments,isActiveProfile,normalize,normalizeEmail,normalizeRole,showMessage,clearMessage,makeElement,statusClass,formatTimestamp,formatDate,writeAudit,friendlyError,setBusy}from"./bloxion-core.js";
-
 const $=id=>document.getElementById(id),loading=$("loading"),app=$("app"),message=$("message");
 let profile=null,selectedId="",selected=null,admin=false,canEdit=false,directoryCache=null,searchTimer=null;
-
-function detail(label,value){
-  const b=makeElement("div",{className:"detail-box"});
-  b.append(makeElement("div",{className:"detail-label",text:label}),makeElement("div",{className:"detail-value",text:value||"—"}));
-  return b;
-}
+function detail(label,value){const b=makeElement("div",{className:"detail-box"});b.append(makeElement("div",{className:"detail-label",text:label}),makeElement("div",{className:"detail-value",text:value||"—"}));return b}
 function checked(id,v){$(id).checked=v===true}
-function permissionObject(){
-  const old=selected?.permissions||{};
-  return{...old,employeesView:$("pEmployeesView").checked,employeesManage:$("pEmployeesManage").checked,employeesCrossDepartment:$("pCross").checked,disciplineIssue:$("pDiscipline").checked,disciplineAppealsReview:$("pAppeals").checked,timeOffReview:$("pTimeOff").checked,resignationsView:$("pResignationsView").checked,resignationsProcess:$("pResignationsProcess").checked,systemAdmin:$("pSystem").checked};
-}
-
-function searchable(value){
-  return String(value??"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim();
-}
-function employeeSearchFields(id,d){
-  return [id,d.employeeId,d.username,d.displayName,d.email,d.position,d.role,d.departmentName,d.departmentId].map(searchable).filter(Boolean);
-}
-function scoreEmployee(entry,term){
-  const fields=employeeSearchFields(entry.id,entry.data),tokens=term.split(/\s+/).filter(Boolean);
-  if(fields.some(v=>v===term))return 0;
-  if(fields.some(v=>v.startsWith(term)))return 1;
-  if(fields.some(v=>v.split(/[^a-z0-9@._-]+/).some(word=>word.startsWith(term))))return 2;
-  if(fields.some(v=>v.includes(term)))return 3;
-  const haystack=fields.join(" ");
-  if(tokens.length>1&&tokens.every(token=>haystack.includes(token)))return 4;
-  return Number.POSITIVE_INFINITY;
-}
-async function loadDirectory(){
-  if(directoryCache)return directoryCache;
-  const directoryQuery=canCrossDepartments(profile)?query(collection(db,"employees"),limit(500)):query(collection(db,"employees"),where("departmentId","==",profile.departmentId),limit(500));
-  const snap=await getDocs(directoryQuery);
-  directoryCache=snap.docs.map(s=>({id:s.id,data:s.data()}));
-  return directoryCache;
-}
-function searchResult(entry){
-  const d=entry.data,item=makeElement("div",{className:"list-item"}),top=makeElement("div",{className:"list-top"});
-  top.append(makeElement("div",{className:"list-title",text:d.username||d.displayName||entry.id}),makeElement("span",{className:statusClass(d.status||d.employmentStatus||"active"),text:d.status||d.employmentStatus||"active"}));
-  const meta=makeElement("div",{className:"list-meta",text:`${entry.id} • ${d.position||d.role||"Employee"} • ${d.departmentName||d.departmentId||"No department"}${d.email?` • ${d.email}`:""}`});
-  const open=makeElement("button",{className:"btn secondary",text:"Open Employee",type:"button"});
-  open.style.marginTop="10px";
-  open.addEventListener("click",()=>openEmployee(entry.id));
-  item.append(top,meta,open);
-  return item;
-}
-async function searchEmployees({auto=false}={}){
-  const term=searchable($("lookup").value),results=$("searchResults"),meta=$("searchMeta");
-  results.replaceChildren();results.classList.add("hidden");
-  if(term.length<2){meta.textContent=term.length?"Type at least 2 characters to search.":"";return;}
-  if(!auto)clearMessage(message);
-  const button=$("searchBtn");if(!auto)setBusy(button,true,"Searching…");
-  try{
-    const directory=await loadDirectory();
-    const matches=directory.map(entry=>({entry,score:scoreEmployee(entry,term)})).filter(x=>Number.isFinite(x.score)).sort((a,b)=>a.score-b.score||searchable(a.entry.data.username||a.entry.data.displayName||a.entry.id).localeCompare(searchable(b.entry.data.username||b.entry.data.displayName||b.entry.id))).slice(0,20);
-    meta.textContent=matches.length?`${matches.length}${directory.length>=500?" of the best":""} match${matches.length===1?"":"es"} shown.`:"No accessible employees matched that search.";
-    if(matches.length){
-      results.classList.remove("hidden");matches.forEach(x=>results.append(searchResult(x.entry)));
-      const exactId=matches.find(x=>searchable(x.entry.id)===term||searchable(x.entry.data.employeeId)===term);
-      if(exactId&&matches[0]===exactId&&!auto)await openEmployee(exactId.entry.id);
-    }
-  }catch(e){
-    console.error(e);meta.textContent="";if(!auto)showMessage(message,friendlyError(e,"Employee search could not be loaded."),"error");
-  }finally{if(!auto)setBusy(button,false);}
-}
-async function openEmployee(employeeId){
-  clearMessage(message);selectedId=normalize(employeeId);
-  try{
-    const s=await getDoc(doc(db,"employees",selectedId));
-    if(!s.exists())throw new Error("That employee record no longer exists.");
-    selected=s.data();
-    if(!canCrossDepartments(profile)&&normalize(selected.departmentId).toLowerCase()!==normalize(profile.departmentId).toLowerCase())throw new Error("You do not have access to employees outside your department.");
-    renderEmployee();await loadHistory();$("employeeSection").classList.remove("hidden");$("employeeSection").scrollIntoView({behavior:"smooth",block:"start"});
-  }catch(e){
-    $("employeeSection").classList.add("hidden");showMessage(message,friendlyError(e,"Employee could not be loaded."),"error");
-  }
-}
-
-function renderEmployee(){
-  const sum=$("summary");
-  sum.replaceChildren(detail("Employee ID",selectedId),detail("Name",selected.username||selected.displayName),detail("Email",selected.email),detail("Position",selected.position),detail("Department",selected.departmentName||selected.departmentId),detail("Role",selected.role),detail("Employment",selected.status||selected.employmentStatus),detail("Portal access",selected.portalAccess===false?"Disabled":"Enabled"),detail("Account linked",selected.linkedUid?"Yes":"No"),detail("Linked UID",selected.linkedUid||"—"));
-  $("username").value=selected.username||selected.displayName||"";$("email").value=selected.email||"";$("position").value=selected.position||"";$("managerEmail").value=selected.managerEmail||"";$("status").value=normalizeRole(selected.status||selected.employmentStatus||"active");$("portalAccess").value=selected.portalAccess===false?"disabled":"enabled";$("role").value=selected.role||"Employee";$("departmentId").value=selected.departmentId||"";$("departmentName").value=selected.departmentName||"";
-  const p=selected.permissions||{};
-  checked("pEmployeesView",p.employeesView);checked("pEmployeesManage",p.employeesManage);checked("pCross",p.employeesCrossDepartment);checked("pDiscipline",p.disciplineIssue||p.canIssueWriteups);checked("pAppeals",p.disciplineAppealsReview||p.canReviewAppeals);checked("pTimeOff",p.timeOffReview);checked("pResignationsView",p.resignationsView);checked("pResignationsProcess",p.resignationsProcess);checked("pSystem",p.systemAdmin);
-  $("securityFields").classList.toggle("hidden",!admin);$("email").disabled=Boolean(selected.linkedUid||selected.accountCreated);$("emailHelp").textContent=$("email").disabled?"Email is locked after Firebase Authentication is linked. Changing it requires an Auth-side email change.":"Email can be edited until the account is activated.";["username","position","managerEmail","status","portalAccess"].forEach(id=>$(id).disabled=!canEdit);$("saveBtn").disabled=!canEdit;$("disableBtn").disabled=!canEdit;
-}
-function item(title,status,meta,button){const x=makeElement("div",{className:"list-item"}),top=makeElement("div",{className:"list-top"});top.append(makeElement("div",{className:"list-title",text:title}),makeElement("span",{className:statusClass(status),text:status||"unknown"}));x.append(top,makeElement("div",{className:"list-meta",text:meta||"—"}));if(button)x.append(button);return x;}
-function caseItem(s){const d=s.data(),b=makeElement("button",{className:"btn ghost",text:"Open Case",type:"button"});b.style.marginTop="10px";b.addEventListener("click",()=>location.href=`appeal-writeup.html?id=${encodeURIComponent(s.id)}`);return item(`${d.caseId||s.id} • ${d.actionType||d.category||"Discipline"}`,d.status||"active",`${d.severity||"—"} • Issued ${formatTimestamp(d.createdAt)} • ${d.acknowledged?"Acknowledged":"Not acknowledged"}`,b);}
-function appealItem(s){const d=s.data();return item(d.caseId||d.writeUpId||"Appeal",d.decision||d.status||"pending",d.appealReason||"—");}
-function timeOffItem(s){const d=s.data();return item(`${d.category||"Time Off"} • ${formatDate(d.startDate)}–${formatDate(d.endDate)}`,d.status||"pending",`${d.dayType==="partial"?`${d.startTime||"—"}–${d.endTime||"—"}`:"Full day(s)"} • ${d.decisionNote||d.reason||"No note"}`);}
-function resignationItem(s){const d=s.data();return item(`Final day • ${formatDate(d.finalDate)}`,d.status||"submitted",`${d.reason||"No reason provided"}${d.managementNote?` • ${d.managementNote}`:""}`);}
-async function loadHistory(){const defs=[["writeUps","writeups","writeupsEmpty",caseItem],["appeals","appeals","appealsEmpty",appealItem],["timeOffRequests","timeOff","timeOffEmpty",timeOffItem],["resignationNotices","resignations","resignationsEmpty",resignationItem]];await Promise.all(defs.map(async([collectionName,listId,emptyId,renderer])=>{const list=$(listId),empty=$(emptyId);list.replaceChildren();empty.classList.remove("hidden");const snap=await getDocs(query(collection(db,collectionName),where("employeeId","==",selectedId),limit(50))).catch(()=>null);snap?.docs.sort((a,b)=>((b.data().submittedAt||b.data().createdAt)?.seconds||0)-((a.data().submittedAt||a.data().createdAt)?.seconds||0)).forEach(s=>{empty.classList.add("hidden");list.append(renderer(s));});}));}
-async function saveChanges(forceDisable=false){
-  if(!selected||!canEdit)return;clearMessage(message);
-  const button=forceDisable?$("disableBtn"):$("saveBtn"),portalAccess=forceDisable?false:$("portalAccess").value==="enabled",employment=normalizeRole($("status").value),targetDepartmentId=admin?normalize($("departmentId").value):normalize(selected.departmentId),updates={username:normalize($("username").value),position:normalize($("position").value),managerEmail:normalizeEmail($("managerEmail").value),status:employment,employmentStatus:employment,portalAccess,loginEnabled:portalAccess&&employment==="active",lastUpdated:serverTimestamp()};
-  if(!selected.linkedUid&&!selected.accountCreated)updates.email=normalizeEmail($("email").value);
-  if(admin){updates.role=normalize($("role").value);updates.departmentId=targetDepartmentId;updates.departmentName=normalize($("departmentName").value);updates.permissions=permissionObject();}
-  const batch=writeBatch(db);batch.update(doc(db,"employees",selectedId),updates);
-  if(selected.linkedUid){const userUpdates={username:updates.username,position:updates.position,status:portalAccess&&employment==="active"?"active":"inactive",lastUpdated:serverTimestamp()};if(admin){userUpdates.role=updates.role;userUpdates.departmentId=updates.departmentId;userUpdates.departmentName=updates.departmentName;userUpdates.permissions=updates.permissions;}batch.update(doc(db,"users",selected.linkedUid),userUpdates);}
-  setBusy(button,true,forceDisable?"Disabling…":"Saving…");
-  try{await batch.commit();await writeAudit(profile,forceDisable?"employee.portal_disabled":"employee.updated",{targetType:"employee",targetId:selectedId,targetEmployeeId:selectedId,targetDepartmentId,summary:forceDisable?`Disabled portal access for ${selected.username||selectedId}.`:`Updated employee record for ${selected.username||selectedId}.`});const s=await getDoc(doc(db,"employees",selectedId));selected=s.data();directoryCache=null;renderEmployee();showMessage(message,forceDisable?"Portal access disabled. The linked user profile was also deactivated and historical records were preserved.":"Employee record and linked portal profile were synchronized.","success");}catch(e){console.error(e);showMessage(message,friendlyError(e,"Employee changes could not be saved."),"error");}finally{setBusy(button,false);}
-}
-
-$("searchBtn").addEventListener("click",()=>searchEmployees());
-$("lookup").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();searchEmployees();}});
-$("lookup").addEventListener("input",()=>{clearTimeout(searchTimer);const term=searchable($("lookup").value);if(term.length<2){$("searchResults").replaceChildren();$("searchResults").classList.add("hidden");$("searchMeta").textContent=term.length?"Type at least 2 characters to search.":"";return;}searchTimer=setTimeout(()=>searchEmployees({auto:true}),220);});
-$("saveBtn").addEventListener("click",()=>saveChanges(false));$("disableBtn").addEventListener("click",()=>saveChanges(true));$("logoutBtn").addEventListener("click",async()=>{await signOut(auth);location.href="login.html";});
-onAuthStateChanged(auth,async user=>{if(!user)return location.href="login.html";profile=await loadOwnProfile(user);if(!profile||!isActiveProfile(profile)||!isManagement(profile))return location.href="dashboard.html";admin=isSystemAdmin(profile);canEdit=canManageEmployees(profile);loading.classList.add("hidden");app.classList.remove("hidden");});
+function permissionObject(){const old=selected?.permissions||{};return{...old,employeesView:$("pEmployeesView").checked,employeesManage:$("pEmployeesManage").checked,employeesCrossDepartment:$("pCross").checked,disciplineIssue:$("pDiscipline").checked,disciplineAppealsReview:$("pAppeals").checked,timeOffReview:$("pTimeOff").checked,resignationsView:$("pResignationsView").checked,resignationsProcess:$("pResignationsProcess").checked,systemAdmin:$("pSystem").checked}}
+function searchable(value){return String(value??"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim()}
+function employeeSearchFields(id,d){return[id,d.employeeId,d.username,d.displayName,d.email,d.position,d.role,d.departmentName,d.departmentId].map(searchable).filter(Boolean)}
+function scoreEmployee(entry,term){const fields=employeeSearchFields(entry.id,entry.data),tokens=term.split(/\s+/).filter(Boolean);if(fields.some(v=>v===term))return 0;if(fields.some(v=>v.startsWith(term)))return 1;if(fields.some(v=>v.split(/[^a-z0-9@._-]+/).some(word=>word.startsWith(term))))return 2;if(fields.some(v=>v.includes(term)))return 3;const haystack=fields.join(" ");if(tokens.length>1&&tokens.every(token=>haystack.includes(token)))return 4;return Number.POSITIVE_INFINITY}
+async function loadDirectory(){if(directoryCache)return directoryCache;const directoryQuery=canCrossDepartments(profile)?query(collection(db,"employees"),limit(500)):query(collection(db,"employees"),where("departmentId","==",profile.departmentId),limit(500));const snap=await getDocs(directoryQuery);directoryCache=snap.docs.map(s=>({id:s.id,data:s.data()}));return directoryCache}
+function searchResult(entry){const d=entry.data,item=makeElement("div",{className:"list-item"}),top=makeElement("div",{className:"list-top"});top.append(makeElement("div",{className:"list-title",text:d.username||d.displayName||entry.id}),makeElement("span",{className:statusClass(d.status||d.employmentStatus||"active"),text:d.status||d.employmentStatus||"active"}));const meta=makeElement("div",{className:"list-meta",text:`${entry.id} • ${d.position||d.role||"Employee"} • ${d.departmentName||d.departmentId||"No department"}${d.email?` • ${d.email}`:""}`}),open=makeElement("button",{className:"btn secondary",text:"Open Employee",type:"button"});open.style.marginTop="10px";open.addEventListener("click",()=>openEmployee(entry.id));item.append(top,meta,open);return item}
+async function searchEmployees({auto=false}={}){const term=searchable($("lookup").value),results=$("searchResults"),meta=$("searchMeta");results.replaceChildren();results.classList.add("hidden");if(term.length<2){meta.textContent=term.length?"Type at least 2 characters to search.":"";return}if(!auto)clearMessage(message);const button=$("searchBtn");if(!auto)setBusy(button,true,"Searching…");try{const directory=await loadDirectory(),matches=directory.map(entry=>({entry,score:scoreEmployee(entry,term)})).filter(x=>Number.isFinite(x.score)).sort((a,b)=>a.score-b.score||searchable(a.entry.data.username||a.entry.data.displayName||a.entry.id).localeCompare(searchable(b.entry.data.username||b.entry.data.displayName||b.entry.id))).slice(0,20);meta.textContent=matches.length?`${matches.length}${directory.length>=500?" of the best":""} match${matches.length===1?"":"es"} shown.`:"No employees matched that search.";if(matches.length){results.classList.remove("hidden");matches.forEach(x=>results.append(searchResult(x.entry)));const exactId=matches.find(x=>searchable(x.entry.id)===term||searchable(x.entry.data.employeeId)===term);if(exactId&&matches[0]===exactId&&!auto)await openEmployee(exactId.entry.id)}}catch(e){console.error(e);meta.textContent="";if(!auto)showMessage(message,friendlyError(e,"Employee search could not be loaded."),"error")}finally{if(!auto)setBusy(button,false)}}
+async function openEmployee(employeeId){clearMessage(message);selectedId=normalize(employeeId);try{const s=await getDoc(doc(db,"employees",selectedId));if(!s.exists())throw new Error("That employee record no longer exists.");selected=s.data();if(!canCrossDepartments(profile)&&normalize(selected.departmentId).toLowerCase()!==normalize(profile.departmentId).toLowerCase())throw new Error("You do not have access to employees outside your department.");renderEmployee();await loadHistory();$("employeeSection").classList.remove("hidden");$("employeeSection").scrollIntoView({behavior:"smooth",block:"start"})}catch(e){$("employeeSection").classList.add("hidden");showMessage(message,friendlyError(e,"Employee could not be loaded."),"error")}}
+function renderEmployee(){const sum=$("summary");sum.replaceChildren(detail("Employee ID",selectedId),detail("Name",selected.username||selected.displayName),detail("Email",selected.email),detail("Position",selected.position),detail("Department",selected.departmentName||selected.departmentId),detail("Role",selected.role),detail("Employment",selected.status||selected.employmentStatus),detail("Portal access",selected.portalAccess===false?"Disabled":"Enabled"),detail("Account",selected.linkedUid?"Activated":"Not activated"));$("username").value=selected.username||selected.displayName||"";$("email").value=selected.email||"";$("position").value=selected.position||"";$("managerEmail").value=selected.managerEmail||"";$("status").value=normalizeRole(selected.status||selected.employmentStatus||"active");$("portalAccess").value=selected.portalAccess===false?"disabled":"enabled";$("role").value=selected.role||"Employee";$("departmentId").value=selected.departmentId||"";$("departmentName").value=selected.departmentName||"";const p=selected.permissions||{};checked("pEmployeesView",p.employeesView);checked("pEmployeesManage",p.employeesManage);checked("pCross",p.employeesCrossDepartment);checked("pDiscipline",p.disciplineIssue||p.canIssueWriteups);checked("pAppeals",p.disciplineAppealsReview||p.canReviewAppeals);checked("pTimeOff",p.timeOffReview);checked("pResignationsView",p.resignationsView);checked("pResignationsProcess",p.resignationsProcess);checked("pSystem",p.systemAdmin);$("securityFields").classList.toggle("hidden",!admin);$("email").disabled=Boolean(selected.linkedUid||selected.accountCreated);$("emailHelp").textContent=$("email").disabled?"Email cannot be changed here after account activation.":"Email can be edited until the account is activated.";["username","position","managerEmail","status","portalAccess"].forEach(id=>$(id).disabled=!canEdit);$("saveBtn").disabled=!canEdit;$("disableBtn").disabled=!canEdit}
+function item(title,status,meta,button){const x=makeElement("div",{className:"list-item"}),top=makeElement("div",{className:"list-top"});top.append(makeElement("div",{className:"list-title",text:title}),makeElement("span",{className:statusClass(status),text:status||"unknown"}));x.append(top,makeElement("div",{className:"list-meta",text:meta||"—"}));if(button)x.append(button);return x}
+function caseItem(s){const d=s.data(),b=makeElement("button",{className:"btn ghost",text:"Open Case",type:"button"});b.style.marginTop="10px";b.addEventListener("click",()=>location.href=`appeal-writeup.html?id=${encodeURIComponent(s.id)}`);return item(`${d.caseId||s.id} • ${d.actionType||d.category||"Discipline"}`,d.status||"active",`${d.severity||"—"} • Issued ${formatTimestamp(d.createdAt)} • ${d.acknowledged?"Acknowledged":"Not acknowledged"}`,b)}
+function appealItem(s){const d=s.data();return item(d.caseId||d.writeUpId||"Appeal",d.decision||d.status||"pending",d.appealReason||"—")}
+function timeOffItem(s){const d=s.data();return item(`${d.category||"Time Off"} • ${formatDate(d.startDate)}–${formatDate(d.endDate)}`,d.status||"pending",`${d.dayType==="partial"?`${d.startTime||"—"}–${d.endTime||"—"}`:"Full day(s)"} • ${d.decisionNote||d.reason||"No note"}`)}
+function resignationItem(s){const d=s.data();return item(`Final day • ${formatDate(d.finalDate)}`,d.status||"submitted",`${d.reason||"No reason provided"}${d.managementNote?` • ${d.managementNote}`:""}`)}
+async function loadHistory(){const defs=[["writeUps","writeups","writeupsEmpty",caseItem],["appeals","appeals","appealsEmpty",appealItem],["timeOffRequests","timeOff","timeOffEmpty",timeOffItem],["resignationNotices","resignations","resignationsEmpty",resignationItem]];await Promise.all(defs.map(async([collectionName,listId,emptyId,renderer])=>{const list=$(listId),empty=$(emptyId);list.replaceChildren();empty.classList.remove("hidden");const snap=await getDocs(query(collection(db,collectionName),where("employeeId","==",selectedId),limit(50))).catch(()=>null);snap?.docs.sort((a,b)=>((b.data().submittedAt||b.data().createdAt)?.seconds||0)-((a.data().submittedAt||a.data().createdAt)?.seconds||0)).forEach(s=>{empty.classList.add("hidden");list.append(renderer(s))})}))}
+async function saveChanges(forceDisable=false){if(!selected||!canEdit)return;clearMessage(message);const button=forceDisable?$("disableBtn"):$("saveBtn"),portalAccess=forceDisable?false:$("portalAccess").value==="enabled",employment=normalizeRole($("status").value),targetDepartmentId=admin?normalize($("departmentId").value):normalize(selected.departmentId),updates={username:normalize($("username").value),position:normalize($("position").value),managerEmail:normalizeEmail($("managerEmail").value),status:employment,employmentStatus:employment,portalAccess,loginEnabled:portalAccess&&employment==="active",lastUpdated:serverTimestamp()};if(!selected.linkedUid&&!selected.accountCreated)updates.email=normalizeEmail($("email").value);if(admin){updates.role=normalize($("role").value);updates.departmentId=targetDepartmentId;updates.departmentName=normalize($("departmentName").value);updates.permissions=permissionObject()}const batch=writeBatch(db);batch.update(doc(db,"employees",selectedId),updates);if(selected.linkedUid){const userUpdates={username:updates.username,position:updates.position,status:portalAccess&&employment==="active"?"active":"inactive",lastUpdated:serverTimestamp()};if(admin){userUpdates.role=updates.role;userUpdates.departmentId=updates.departmentId;userUpdates.departmentName=updates.departmentName;userUpdates.permissions=updates.permissions}batch.update(doc(db,"users",selected.linkedUid),userUpdates)}setBusy(button,true,forceDisable?"Disabling…":"Saving…");try{await batch.commit();await writeAudit(profile,forceDisable?"employee.portal_disabled":"employee.updated",{targetType:"employee",targetId:selectedId,targetEmployeeId:selectedId,targetDepartmentId,summary:forceDisable?`Disabled portal access for ${selected.username||selectedId}.`:`Updated employee record for ${selected.username||selectedId}.`});const s=await getDoc(doc(db,"employees",selectedId));selected=s.data();directoryCache=null;renderEmployee();showMessage(message,forceDisable?"Portal access disabled. The employee's history has been preserved.":"Employee changes saved.","success")}catch(e){console.error(e);showMessage(message,friendlyError(e,"Employee changes could not be saved."),"error")}finally{setBusy(button,false)}}
+$("searchBtn").addEventListener("click",()=>searchEmployees());$("lookup").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();searchEmployees()}});$("lookup").addEventListener("input",()=>{clearTimeout(searchTimer);const term=searchable($("lookup").value);if(term.length<2){$("searchResults").replaceChildren();$("searchResults").classList.add("hidden");$("searchMeta").textContent=term.length?"Type at least 2 characters to search.":"";return}searchTimer=setTimeout(()=>searchEmployees({auto:true}),220)});$("saveBtn").addEventListener("click",()=>saveChanges(false));$("disableBtn").addEventListener("click",()=>saveChanges(true));$("logoutBtn").addEventListener("click",async()=>{await signOut(auth);location.href="login.html"});onAuthStateChanged(auth,async user=>{if(!user)return location.href="login.html";profile=await loadOwnProfile(user);if(!profile||!isActiveProfile(profile)||!isManagement(profile))return location.href="dashboard.html";admin=isSystemAdmin(profile);canEdit=canManageEmployees(profile);loading.classList.add("hidden");app.classList.remove("hidden")});
 </script>
 </body>
 </html>
