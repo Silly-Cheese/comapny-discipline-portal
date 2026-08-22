@@ -29,6 +29,20 @@ service cloud.firestore {
     function canProcessResignations(){return activeProfile()&&(permission('resignationsProcess')||isAdmin());}
     function resignationPath(id){return /databases/$(database)/documents/resignationNotices/$(id);}
     function activeResignationPath(employeeId){return /databases/$(database)/documents/resignationActive/$(employeeId);}
+    function auditIdentity(data){return activeProfile()&&data.get('actorUid','')==request.auth.uid&&data.get('actorEmployeeId','')==profile().get('employeeId','')&&data.get('actorRole','')==profile().get('role','')&&data.get('actorDepartmentId','')==profile().get('departmentId','')&&data.get('createdAt',null)==request.time;}
+    function auditTargetAllowed(data){return crossDepartment()||data.get('targetDepartmentId','')==profile().get('departmentId','');}
+    function auditAllowed(data){
+      return auditIdentity(data)&&(
+        (data.get('action','') in ['account.activated','discipline.acknowledged','discipline.appeal_submitted','time_off.submitted','time_off.cancelled','resignation.submitted','resignation.withdrawn']&&data.get('targetEmployeeId','')==profile().get('employeeId',''))||
+        (data.get('action','') in ['discipline.issued','discipline.case_updated']&&canIssueDiscipline()&&auditTargetAllowed(data))||
+        (data.get('action','')=='discipline.appeal_reviewed'&&canReviewDisciplineAppeals()&&auditTargetAllowed(data))||
+        (data.get('action','') in ['time_off.approved','time_off.denied']&&canReviewTimeOff()&&auditTargetAllowed(data))||
+        (data.get('action','')=='resignation.acknowledged'&&canViewResignations()&&auditTargetAllowed(data))||
+        (data.get('action','')=='resignation.processed'&&canProcessResignations()&&auditTargetAllowed(data))||
+        (data.get('action','') in ['employee.created','employee.updated','employee.portal_disabled']&&canManageEmployees()&&auditTargetAllowed(data))||
+        (data.get('action','')=='settings.updated'&&isAdmin())
+      );
+    }
 
     match /users/{userId} {
       allow get: if (signedIn()&&request.auth.uid==userId)||isAdmin()||(isManagement()&&sameDepartment(resource.data));
@@ -89,8 +103,8 @@ service cloud.firestore {
     }
 
     match /signupRequests/{requestId}{allow read,write:if isAdmin();}
-    match /systemSettings/{settingId}{allow read:if signedIn();allow write:if isAdmin();}
-    match /auditLogs/{logId}{allow read:if isAdmin();allow write:if false;}
+    match /systemSettings/{settingId}{allow read:if activeProfile();allow write:if isAdmin();}
+    match /auditLogs/{logId}{allow read:if isAdmin();allow create:if auditAllowed(request.resource.data);allow update,delete:if false;}
     match /{document=**}{allow read,write:if false;}
   }
 }
