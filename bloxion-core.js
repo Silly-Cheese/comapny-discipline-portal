@@ -2,126 +2,21 @@ import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-export const firebaseConfig = {
-  apiKey: "AIzaSyDE0nhogdC9LHPEhSlUF1AqnXmwPU64cXg",
-  authDomain: "company-discipline-portal.firebaseapp.com",
-  projectId: "company-discipline-portal",
-  storageBucket: "company-discipline-portal.firebasestorage.app",
-  messagingSenderId: "991390225414",
-  appId: "1:991390225414:web:32b8d71a8fe2a323161f87"
-};
-
-export const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-
-export function normalize(value) {
-  return String(value ?? "").trim();
-}
-
-export function normalizeEmail(value) {
-  return normalize(value).toLowerCase();
-}
-
-export function normalizeRole(value) {
-  return normalize(value).toLowerCase();
-}
-
-export function isManagement(profile) {
-  const role = normalizeRole(profile?.role);
-  return Boolean(
-    profile?.permissions?.employeesView === true ||
-    profile?.permissions?.employeesManage === true ||
-    role === "manager" || role === "admin" || role === "administrator" || role === "owner"
-  );
-}
-
-export function isSystemAdmin(profile) {
-  const role = normalizeRole(profile?.role);
-  return Boolean(
-    profile?.permissions?.systemAdmin === true ||
-    role === "admin" || role === "administrator" || role === "owner"
-  );
-}
-
-export function canIssueDiscipline(profile) {
-  const role = normalizeRole(profile?.role);
-  return Boolean(
-    profile?.permissions?.disciplineIssue === true ||
-    profile?.permissions?.canIssueWriteups === true ||
-    role === "manager" || role === "admin" || role === "administrator" || role === "owner"
-  );
-}
-
-export function canReviewAppeals(profile) {
-  const role = normalizeRole(profile?.role);
-  return Boolean(
-    profile?.permissions?.disciplineAppealsReview === true ||
-    profile?.permissions?.canReviewAppeals === true ||
-    role === "manager" || role === "admin" || role === "administrator" || role === "owner"
-  );
-}
-
-export function canCrossDepartments(profile) {
-  const role = normalizeRole(profile?.role);
-  return Boolean(profile?.permissions?.employeesCrossDepartment === true || role === "admin" || role === "administrator" || role === "owner");
-}
-
-export async function loadOwnProfile(user = auth.currentUser) {
-  if (!user) return null;
-  const snap = await getDoc(doc(db, "users", user.uid));
-  if (!snap.exists()) return null;
-  return { id: snap.id, ...snap.data() };
-}
-
-export function showMessage(element, text, type = "info") {
-  if (!element) return;
-  element.textContent = String(text ?? "");
-  element.className = `message ${type}`;
-}
-
-export function clearMessage(element) {
-  if (!element) return;
-  element.textContent = "";
-  element.className = "message";
-}
-
-export function setText(element, value, fallback = "—") {
-  if (element) element.textContent = normalize(value) || fallback;
-}
-
-export function makeElement(tag, options = {}) {
-  const el = document.createElement(tag);
-  if (options.className) el.className = options.className;
-  if (options.text !== undefined) el.textContent = String(options.text);
-  if (options.type) el.type = options.type;
-  if (options.href) el.href = options.href;
-  if (options.dataset) Object.entries(options.dataset).forEach(([key, value]) => { el.dataset[key] = String(value); });
-  return el;
-}
-
-export function statusClass(status) {
-  const value = normalizeRole(status);
-  if (["approved", "active", "completed", "reviewed", "acknowledged", "processed"].includes(value)) return "pill success";
-  if (["pending", "under appeal", "submitted", "awaiting acknowledgment"].includes(value)) return "pill warning";
-  if (["denied", "inactive", "terminated", "resigned", "overturned", "cancelled", "reduced"].includes(value)) return "pill danger";
-  return "pill";
-}
-
-export function formatTimestamp(value) {
-  try {
-    const date = value?.toDate ? value.toDate() : value ? new Date(value) : null;
-    if (!date || Number.isNaN(date.getTime())) return "—";
-    return new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(date);
-  } catch {
-    return "—";
-  }
-}
-
-export function activationAllowed(employee) {
-  if (!employee) return false;
-  const status = normalizeRole(employee.status || employee.employmentStatus || "active");
-  if (status !== "active") return false;
-  if (employee.portalAccess === false) return false;
-  return employee.portalAccess === true || employee.canSignup === true || employee.loginEnabled === true || employee.accountCreated === true;
-}
+export const firebaseConfig={apiKey:"AIzaSyDE0nhogdC9LHPEhSlUF1AqnXmwPU64cXg",authDomain:"company-discipline-portal.firebaseapp.com",projectId:"company-discipline-portal",storageBucket:"company-discipline-portal.firebasestorage.app",messagingSenderId:"991390225414",appId:"1:991390225414:web:32b8d71a8fe2a323161f87"};
+export const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig);export const auth=getAuth(app);export const db=getFirestore(app);
+export function normalize(v){return String(v??"").trim()} export function normalizeEmail(v){return normalize(v).toLowerCase()} export function normalizeRole(v){return normalize(v).toLowerCase()}
+export function isActiveProfile(p){return Boolean(p&&normalizeRole(p.status||"active")==="active")}
+export function isManagement(p){const r=normalizeRole(p?.role);return isActiveProfile(p)&&Boolean(p?.permissions?.employeesView===true||p?.permissions?.employeesManage===true||["manager","admin","administrator","owner"].includes(r))}
+export function canManageEmployees(p){const r=normalizeRole(p?.role);return isActiveProfile(p)&&Boolean(p?.permissions?.employeesManage===true||["manager","admin","administrator","owner"].includes(r))}
+export function isSystemAdmin(p){const r=normalizeRole(p?.role);return isActiveProfile(p)&&Boolean(p?.permissions?.systemAdmin===true||["admin","administrator","owner"].includes(r))}
+export function canIssueDiscipline(p){const r=normalizeRole(p?.role);return isActiveProfile(p)&&Boolean(p?.permissions?.disciplineIssue===true||p?.permissions?.canIssueWriteups===true||["manager","admin","administrator","owner"].includes(r))}
+export function canReviewAppeals(p){const r=normalizeRole(p?.role);return isActiveProfile(p)&&Boolean(p?.permissions?.disciplineAppealsReview===true||p?.permissions?.canReviewAppeals===true||["manager","admin","administrator","owner"].includes(r))}
+export function canCrossDepartments(p){const r=normalizeRole(p?.role);return isActiveProfile(p)&&Boolean(p?.permissions?.employeesCrossDepartment===true||["admin","administrator","owner"].includes(r))}
+export async function loadOwnProfile(user=auth.currentUser){if(!user)return null;const s=await getDoc(doc(db,"users",user.uid));return s.exists()?{id:s.id,...s.data()}:null}
+export function showMessage(el,text,type="info"){if(!el)return;el.textContent=String(text??"");el.className=`message ${type}`} export function clearMessage(el){if(el){el.textContent="";el.className="message"}}
+export function setText(el,value,fallback="—"){if(el)el.textContent=normalize(value)||fallback}
+export function makeElement(tag,o={}){const el=document.createElement(tag);if(o.className)el.className=o.className;if(o.text!==undefined)el.textContent=String(o.text);if(o.type)el.type=o.type;if(o.href)el.href=o.href;if(o.dataset)Object.entries(o.dataset).forEach(([k,v])=>el.dataset[k]=String(v));return el}
+export function statusClass(status){const v=normalizeRole(status);if(["approved","active","completed","reviewed","acknowledged","processed","resolved","upheld"].includes(v))return"pill success";if(["pending","under appeal","submitted","awaiting acknowledgment","reduced"].includes(v))return"pill warning";if(["denied","inactive","terminated","resigned","overturned","cancelled","rescinded","withdrawn"].includes(v))return"pill danger";return"pill"}
+export function formatTimestamp(value){try{const d=value?.toDate?value.toDate():value?new Date(value):null;if(!d||Number.isNaN(d.getTime()))return"—";return new Intl.DateTimeFormat("en-US",{dateStyle:"medium",timeStyle:"short"}).format(d)}catch{return"—"}}
+export function formatDate(value){if(!value)return"—";try{const d=value?.toDate?value.toDate():new Date(`${value}T12:00:00`);if(Number.isNaN(d.getTime()))return normalize(value)||"—";return new Intl.DateTimeFormat("en-US",{dateStyle:"medium"}).format(d)}catch{return normalize(value)||"—"}}
+export function activationAllowed(employee){if(!employee)return false;const status=normalizeRole(employee.status||employee.employmentStatus||"active");if(status!=="active"||employee.portalAccess===false)return false;return employee.portalAccess===true||employee.canSignup===true||employee.loginEnabled===true||employee.accountCreated===true}
